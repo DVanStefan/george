@@ -28,6 +28,7 @@ import {
   promptsFromGeoConfig,
   saveGeoConfig,
 } from "./geo-config-store.js";
+import { DEFAULT_APPEARANCE, getAppearance, saveAppearance, suggestAppearance } from "./appearance-store.js";
 
 function parseJsonBody(req) {
   return new Promise((resolve, reject) => {
@@ -1178,7 +1179,7 @@ function geoExecutivePage({ orgHint = "" } = {}) {
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>GEOrge Executive Dashboard</title>
   <style>
-    :root { --bg:#f2f6f4; --card:#ffffff; --ink:#17241d; --muted:#5e6f65; --line:#d4dfd8; --accent:#0f766e; --err:#7f1d1d; }
+    :root { --bg:#f2f6f4; --card:#ffffff; --ink:#17241d; --muted:#5e6f65; --line:#d4dfd8; --accent:#0f766e; --accent2:#1ea399; --err:#7f1d1d; }
     body { margin:0; font-family:"Segoe UI","Trebuchet MS",sans-serif; color:var(--ink); background:var(--bg); }
     .wrap { max-width:1240px; margin:0 auto; padding:20px; }
     .tabs { display:flex; gap:8px; margin:12px 0; }
@@ -1199,7 +1200,7 @@ function geoExecutivePage({ orgHint = "" } = {}) {
     .bar { border:1px solid var(--line); border-radius:10px; padding:8px; background:#fff; }
     .barTop { display:flex; justify-content:space-between; font-size:12px; margin-bottom:6px; }
     .track { height:8px; border-radius:999px; background:#eaf1ec; overflow:hidden; }
-    .fill { height:100%; background:linear-gradient(90deg,#0f766e,#1ea399); }
+    .fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); }
     .trendWrap { border:1px solid var(--line); border-radius:10px; background:#fff; padding:10px; margin-top:8px; }
     .trendLegend { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin-top:8px; }
     .trendItem { display:flex; align-items:center; gap:8px; font-size:12px; border:1px solid var(--line); border-radius:8px; padding:6px; background:#fff; }
@@ -1211,7 +1212,7 @@ function geoExecutivePage({ orgHint = "" } = {}) {
     .option { border:1px solid var(--line); border-radius:8px; padding:8px; background:#fff; margin-top:8px; }
     .status { margin-top:8px; padding:8px; border:1px solid var(--line); border-radius:8px; background:#f8faf8; font-size:12px; }
     .status.err { color:var(--err); background:#fee2e2; border-color:#fecaca; }
-    button.primary { border:1px solid #0c5e57; color:#fff; background:linear-gradient(180deg,#0f766e,#0c5e57); border-radius:8px; padding:8px 12px; font-weight:700; cursor:pointer; }
+    button.primary { border:1px solid var(--accent); color:#fff; background:linear-gradient(180deg,var(--accent2),var(--accent)); border-radius:8px; padding:8px 12px; font-weight:700; cursor:pointer; }
     @media (max-width:1000px){ .kpis{grid-template-columns:1fr 1fr;} .grid2,.row{grid-template-columns:1fr;} }
   </style>
 </head>
@@ -1401,6 +1402,20 @@ function geoExecutivePage({ orgHint = "" } = {}) {
                 <option value="asc">Low-High</option>
               </select>
             </label>
+            <label class="muted">Mention Rate
+              <select id="qSortMentionRate">
+                <option value="none" selected>Off</option>
+                <option value="desc">High-Low</option>
+                <option value="asc">Low-High</option>
+              </select>
+            </label>
+            <label class="muted">Content Quality
+              <select id="qSortContentQuality">
+                <option value="none" selected>Off</option>
+                <option value="desc">High-Low</option>
+                <option value="asc">Low-High</option>
+              </select>
+            </label>
           </div>
         </div>
         <div id="qualityQuestion"></div>
@@ -1454,6 +1469,7 @@ function geoExecutivePage({ orgHint = "" } = {}) {
       <div class="tabs" style="margin-top:0;">
         <button id="adminSectionUsersBtn" class="tab active">Manage Users</button>
         <button id="adminSectionGeoBtn" class="tab">Manage GEO Search</button>
+        <button id="adminSectionAppearanceBtn" class="tab">Appearance</button>
       </div>
 
       <div id="adminUsersSection">
@@ -1592,12 +1608,66 @@ function geoExecutivePage({ orgHint = "" } = {}) {
           </div>
         </div>
       </div>
+
+      <div id="adminAppearanceSection" class="hidden">
+        <div class="card">
+          <h3 style="margin:0 0 8px;">Brand Appearance</h3>
+          <div class="muted" style="margin-bottom:8px;">Set destination-specific UI palette. Applied to this org only.</div>
+          <div id="adminAppearanceStatus" class="status">Ready.</div>
+          <div id="adminAppearanceMeta" class="muted" style="margin-top:8px;">Current palette is active.</div>
+        </div>
+        <div class="grid2">
+          <div class="card">
+            <h3 style="margin:0 0 8px;">Palette</h3>
+            <div class="option">
+              <label class="muted" style="display:block;">Background</label>
+              <input id="appBg" type="color" />
+              <label class="muted" style="display:block; margin-top:8px;">Card</label>
+              <input id="appCard" type="color" />
+              <label class="muted" style="display:block; margin-top:8px;">Text</label>
+              <input id="appInk" type="color" />
+              <label class="muted" style="display:block; margin-top:8px;">Muted Text</label>
+              <input id="appMuted" type="color" />
+              <label class="muted" style="display:block; margin-top:8px;">Line</label>
+              <input id="appLine" type="color" />
+              <label class="muted" style="display:block; margin-top:8px;">Accent</label>
+              <input id="appAccent" type="color" />
+              <label class="muted" style="display:block; margin-top:8px;">Accent 2</label>
+              <input id="appAccent2" type="color" />
+              <label class="muted" style="display:block; margin-top:8px;">Error</label>
+              <input id="appErr" type="color" />
+            </div>
+            <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+              <button id="appearanceSuggestBtn" class="chip" type="button">Suggest Palette</button>
+              <button id="appearanceResetBtn" class="chip" type="button">Reset Default</button>
+              <button id="appearanceSaveBtn" class="primary" type="button">Save Appearance</button>
+            </div>
+          </div>
+          <div class="card">
+            <h3 style="margin:0 0 8px;">Preview</h3>
+            <div id="appearancePreview" class="option">
+              <div style="font-weight:700; margin-bottom:8px;">GEOrge Theme Preview</div>
+              <div class="muted">This preview uses your selected destination colors.</div>
+              <div style="display:flex; gap:8px; margin-top:10px; align-items:center;">
+                <button class="chip" type="button">Secondary</button>
+                <button class="primary" type="button">Primary</button>
+              </div>
+              <div style="margin-top:10px; border:1px solid var(--line); border-radius:8px; padding:8px;">
+                <div style="height:8px; background:#eaf1ec; border-radius:999px; overflow:hidden;">
+                  <div style="height:100%; width:62%; background:linear-gradient(90deg,var(--accent),var(--accent2));"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
     const ORG_HINT = ${JSON.stringify(String(orgHint || ""))};
     const DEFAULT_GEO_CONFIG = ${JSON.stringify(DEFAULT_GEO_CONFIG)};
+    const DEFAULT_APPEARANCE = ${JSON.stringify(DEFAULT_APPEARANCE)};
     let currentRange = "today";
     let batches = [];
     let detailsCache = new Map();
@@ -1618,6 +1688,8 @@ function geoExecutivePage({ orgHint = "" } = {}) {
     let adminSection = "users";
     let geoConfig = JSON.parse(JSON.stringify(DEFAULT_GEO_CONFIG));
     let adminGeoConfig = JSON.parse(JSON.stringify(DEFAULT_GEO_CONFIG));
+    let appearanceConfig = JSON.parse(JSON.stringify(DEFAULT_APPEARANCE));
+    let adminAppearanceConfig = JSON.parse(JSON.stringify(DEFAULT_APPEARANCE));
     let geoConfigVersions = [];
     const REPORT_TZ = "America/Vancouver";
     let sessionToken = localStorage.getItem("dmo_session_token") || "";
@@ -1637,6 +1709,7 @@ function geoExecutivePage({ orgHint = "" } = {}) {
         adminCapability = false;
         el.textContent = "Not signed in.";
         if (logo) logo.src = "/assets/destination-vancouver-logo.png";
+        applyAppearanceTheme(DEFAULT_APPEARANCE);
         updateAdminVisibility();
         return;
       }
@@ -1792,16 +1865,31 @@ function geoExecutivePage({ orgHint = "" } = {}) {
       if (!el) return;
       el.textContent = text || "Current config version: unknown.";
     }
+    function setAppearanceStatus(text, err) {
+      const el = document.getElementById("adminAppearanceStatus");
+      if (!el) return;
+      el.textContent = text;
+      el.className = "status" + (err ? " err" : "");
+    }
+    function setAppearanceMeta(text) {
+      const el = document.getElementById("adminAppearanceMeta");
+      if (!el) return;
+      el.textContent = text || "Current palette is active.";
+    }
     function setAdminSection(section) {
-      adminSection = section === "geo" ? "geo" : "users";
+      adminSection = section === "geo" ? "geo" : (section === "appearance" ? "appearance" : "users");
       const usersBtn = document.getElementById("adminSectionUsersBtn");
       const geoBtn = document.getElementById("adminSectionGeoBtn");
+      const appearanceBtn = document.getElementById("adminSectionAppearanceBtn");
       const usersPane = document.getElementById("adminUsersSection");
       const geoPane = document.getElementById("adminGeoSection");
+      const appearancePane = document.getElementById("adminAppearanceSection");
       if (usersBtn) usersBtn.className = adminSection === "users" ? "tab active" : "tab";
       if (geoBtn) geoBtn.className = adminSection === "geo" ? "tab active" : "tab";
+      if (appearanceBtn) appearanceBtn.className = adminSection === "appearance" ? "tab active" : "tab";
       if (usersPane) usersPane.className = adminSection === "users" ? "" : "hidden";
       if (geoPane) geoPane.className = adminSection === "geo" ? "" : "hidden";
+      if (appearancePane) appearancePane.className = adminSection === "appearance" ? "" : "hidden";
     }
     function splitKeywordText(value) {
       return String(value || "")
@@ -1965,6 +2053,113 @@ function geoExecutivePage({ orgHint = "" } = {}) {
       if (!res.ok) return;
       const data = await res.json().catch(() => null);
       if (data) geoConfig = data;
+    }
+    function applyAppearanceTheme(theme) {
+      const palette = theme?.palette || DEFAULT_APPEARANCE.palette;
+      const root = document.documentElement;
+      const keys = ["bg", "card", "ink", "muted", "line", "accent", "accent2", "err"];
+      keys.forEach((k) => {
+        const v = String(palette?.[k] || DEFAULT_APPEARANCE.palette[k] || "").trim();
+        if (v) root.style.setProperty("--" + k, v);
+      });
+    }
+    function renderAppearanceEditor() {
+      const palette = adminAppearanceConfig?.palette || DEFAULT_APPEARANCE.palette;
+      const set = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.value = String(value || "");
+      };
+      set("appBg", palette.bg);
+      set("appCard", palette.card);
+      set("appInk", palette.ink);
+      set("appMuted", palette.muted);
+      set("appLine", palette.line);
+      set("appAccent", palette.accent);
+      set("appAccent2", palette.accent2);
+      set("appErr", palette.err);
+      applyAppearanceTheme({ palette });
+    }
+    function collectAppearanceFromEditor() {
+      const read = (id, fallback) => {
+        const v = String(document.getElementById(id)?.value || "").trim();
+        return v || fallback;
+      };
+      return {
+        palette: {
+          bg: read("appBg", DEFAULT_APPEARANCE.palette.bg),
+          card: read("appCard", DEFAULT_APPEARANCE.palette.card),
+          ink: read("appInk", DEFAULT_APPEARANCE.palette.ink),
+          muted: read("appMuted", DEFAULT_APPEARANCE.palette.muted),
+          line: read("appLine", DEFAULT_APPEARANCE.palette.line),
+          accent: read("appAccent", DEFAULT_APPEARANCE.palette.accent),
+          accent2: read("appAccent2", DEFAULT_APPEARANCE.palette.accent2),
+          err: read("appErr", DEFAULT_APPEARANCE.palette.err),
+        },
+      };
+    }
+    async function loadAppearanceForDashboard() {
+      const res = await apiFetch("/api/appearance");
+      if (!res.ok) return false;
+      const data = await res.json().catch(() => null);
+      if (!data) return false;
+      appearanceConfig = data;
+      applyAppearanceTheme(appearanceConfig);
+      return true;
+    }
+    async function loadAppearanceForAdmin() {
+      setAppearanceStatus("Loading appearance...");
+      const res = await apiFetch("/api/admin/appearance");
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setAppearanceStatus(data?.error || "Failed to load appearance.", true);
+        return false;
+      }
+      adminAppearanceConfig = data || JSON.parse(JSON.stringify(DEFAULT_APPEARANCE));
+      appearanceConfig = adminAppearanceConfig;
+      renderAppearanceEditor();
+      setAppearanceMeta(
+        "Updated: " + (formatZonedDateTime(adminAppearanceConfig?.updatedAt || "") || "n/a") +
+        " | By: " + String(adminAppearanceConfig?.updatedBy || "system")
+      );
+      setAppearanceStatus("Loaded.");
+      return true;
+    }
+    async function saveAppearanceFromAdmin() {
+      const payload = collectAppearanceFromEditor();
+      setAppearanceStatus("Saving appearance...");
+      const res = await apiFetch("/api/admin/appearance", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setAppearanceStatus(data?.error || "Failed to save appearance.", true);
+        return false;
+      }
+      adminAppearanceConfig = data?.appearance || payload;
+      appearanceConfig = adminAppearanceConfig;
+      renderAppearanceEditor();
+      setAppearanceMeta(
+        "Updated: " + (formatZonedDateTime(adminAppearanceConfig?.updatedAt || "") || "n/a") +
+        " | By: " + String(adminAppearanceConfig?.updatedBy || "system")
+      );
+      setAppearanceStatus("Saved.");
+      return true;
+    }
+    async function suggestAppearanceFromAdmin() {
+      setAppearanceStatus("Generating suggested palette...");
+      const res = await apiFetch("/api/admin/appearance/suggest", { method: "POST" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setAppearanceStatus(data?.error || "Failed to generate suggestion.", true);
+        return false;
+      }
+      adminAppearanceConfig = data?.appearance || JSON.parse(JSON.stringify(DEFAULT_APPEARANCE));
+      appearanceConfig = adminAppearanceConfig;
+      renderAppearanceEditor();
+      setAppearanceStatus("Suggested palette loaded. Save to apply permanently.");
+      return true;
     }
     function renderAdminResetRequests() {
       const root = document.getElementById("adminResetRequests");
@@ -2502,14 +2697,23 @@ function geoExecutivePage({ orgHint = "" } = {}) {
           }
           groups.set(k, cur);
         });
-        return [...groups.entries()].map(([k, g]) => ({
-          key: k,
-          mentionRate: pct(g.mentioned.length, g.all.length),
-          sampleCount: g.mentioned.length,
-          sentiment: avg(g.mentioned, "sentiment"),
-          specificity: avg(g.mentioned, "specificity"),
-          brand_alignment: avg(g.mentioned, "brand_alignment"),
-        }));
+        return [...groups.entries()].map(([k, g]) => {
+          const mentionRateDecimalByGroup = g.all.length ? (g.mentioned.length / g.all.length) : 0;
+          const sAvg = avgNum(g.mentioned, "sentiment");
+          const spAvg = avgNum(g.mentioned, "specificity");
+          const bAvg = avgNum(g.mentioned, "brand_alignment");
+          const criteriaAvg = g.mentioned.length ? ((sAvg + spAvg + bAvg) / 3) : 0;
+          const totalContentQualityByGroup = mentionRateDecimalByGroup * criteriaAvg;
+          return {
+            key: k,
+            mentionRate: pct(g.mentioned.length, g.all.length),
+            sampleCount: g.mentioned.length,
+            sentiment: avg(g.mentioned, "sentiment"),
+            specificity: avg(g.mentioned, "specificity"),
+            brand_alignment: avg(g.mentioned, "brand_alignment"),
+            total_content_quality: totalContentQualityByGroup.toFixed(2),
+          };
+        });
       };
       const mentionRateDecimal = all.length ? (mentioned.length / all.length) : 0;
       const sentiment = avgNum(scored, "sentiment");
@@ -2601,7 +2805,7 @@ function geoExecutivePage({ orgHint = "" } = {}) {
         "</tbody></table>";
     }
     function renderQualityQuestionTable() {
-      const cols = ["key", "mentionRate", "sampleCount", "sentiment", "specificity", "brand_alignment"];
+      const cols = ["key", "mentionRate", "sampleCount", "sentiment", "specificity", "brand_alignment", "total_content_quality"];
       if (!qualityQuestionRows.length) {
         renderTable("qualityQuestion", [], cols);
         return;
@@ -2609,9 +2813,14 @@ function geoExecutivePage({ orgHint = "" } = {}) {
       const rows = [...qualityQuestionRows];
       if (qualityQuestionSortKey) {
         const dir = qualityQuestionSortDir === "asc" ? 1 : -1;
+        const metricValue = (row, key) => {
+          const raw = String(row?.[key] ?? "");
+          if (key === "mentionRate") return Number(raw.replace(/[^0-9.-]/g, "")) || 0;
+          return Number(raw) || 0;
+        };
         rows.sort((a, b) => {
-          const av = Number(a[qualityQuestionSortKey] || 0);
-          const bv = Number(b[qualityQuestionSortKey] || 0);
+          const av = metricValue(a, qualityQuestionSortKey);
+          const bv = metricValue(b, qualityQuestionSortKey);
           if (av !== bv) return (av - bv) * dir;
           return String(a.key || "").localeCompare(String(b.key || ""));
         });
@@ -2624,9 +2833,13 @@ function geoExecutivePage({ orgHint = "" } = {}) {
       const sentiment = document.getElementById("qSortSentiment");
       const specificity = document.getElementById("qSortSpecificity");
       const brand = document.getElementById("qSortBrand");
+      const mentionRate = document.getElementById("qSortMentionRate");
+      const contentQuality = document.getElementById("qSortContentQuality");
       if (sentiment) sentiment.value = "none";
       if (specificity) specificity.value = "none";
       if (brand) brand.value = "none";
+      if (mentionRate) mentionRate.value = "none";
+      if (contentQuality) contentQuality.value = "none";
       if (dir === "none") {
         renderQualityQuestionTable();
         return;
@@ -2643,6 +2856,14 @@ function geoExecutivePage({ orgHint = "" } = {}) {
         qualityQuestionSortKey = "brand_alignment";
         qualityQuestionSortDir = dir;
         if (brand) brand.value = dir;
+      } else if (metric === "mentionRate") {
+        qualityQuestionSortKey = "mentionRate";
+        qualityQuestionSortDir = dir;
+        if (mentionRate) mentionRate.value = dir;
+      } else if (metric === "total_content_quality") {
+        qualityQuestionSortKey = "total_content_quality";
+        qualityQuestionSortDir = dir;
+        if (contentQuality) contentQuality.value = dir;
       }
       renderQualityQuestionTable();
     }
@@ -2909,8 +3130,8 @@ function geoExecutivePage({ orgHint = "" } = {}) {
         { k: "Brand Alignment (1-5)", v: q.brand_alignment },
         { k: "Total Content Quality", v: q.totalContentQuality },
       ].map((x) => "<div class='kpi'><div class='muted'>" + esc(x.k) + "</div><div style='font-size:30px;font-weight:700;'>" + esc(x.v) + "</div></div>").join("");
-      renderTable("qualityMarket", q.byMarket, ["key", "mentionRate", "sampleCount", "sentiment", "specificity", "brand_alignment"]);
-      renderTable("qualityFunnel", q.byFunnel, ["key", "mentionRate", "sampleCount", "sentiment", "specificity", "brand_alignment"]);
+      renderTable("qualityMarket", q.byMarket, ["key", "mentionRate", "sampleCount", "sentiment", "specificity", "brand_alignment", "total_content_quality"]);
+      renderTable("qualityFunnel", q.byFunnel, ["key", "mentionRate", "sampleCount", "sentiment", "specificity", "brand_alignment", "total_content_quality"]);
       qualityQuestionRows = q.byQuestion || [];
       renderQualityQuestionTable();
     }
@@ -3007,6 +3228,10 @@ function geoExecutivePage({ orgHint = "" } = {}) {
       setAdminSection("geo");
       await loadGeoConfigForAdmin();
     };
+    document.getElementById("adminSectionAppearanceBtn").onclick = async () => {
+      setAdminSection("appearance");
+      await loadAppearanceForAdmin();
+    };
     document.getElementById("startRun").onclick = startRun;
     document.getElementById("adminCreateUserBtn").onclick = createAdminUser;
     document.getElementById("adminRefreshResetsBtn").onclick = async () => { await loadAdminUsers(); };
@@ -3042,6 +3267,14 @@ function geoExecutivePage({ orgHint = "" } = {}) {
       setGeoStatus("Question added.");
     };
     document.getElementById("geoSaveConfigBtn").onclick = saveGeoConfigFromAdmin;
+    document.getElementById("appearanceSuggestBtn").onclick = suggestAppearanceFromAdmin;
+    document.getElementById("appearanceResetBtn").onclick = () => {
+      adminAppearanceConfig = JSON.parse(JSON.stringify(DEFAULT_APPEARANCE));
+      appearanceConfig = adminAppearanceConfig;
+      renderAppearanceEditor();
+      setAppearanceStatus("Reset to default palette. Save to persist.");
+    };
+    document.getElementById("appearanceSaveBtn").onclick = saveAppearanceFromAdmin;
     document.getElementById("runRangeDay").onclick = () => { setRunRange("day"); renderRunsByRange(); };
     document.getElementById("runRangeWeek").onclick = () => { setRunRange("week"); renderRunsByRange(); };
     document.getElementById("runRangeMonth").onclick = () => { setRunRange("month"); renderRunsByRange(); };
@@ -3084,6 +3317,12 @@ function geoExecutivePage({ orgHint = "" } = {}) {
     document.getElementById("qSortBrand").onchange = (e) => {
       setQualityQuestionSort("brand_alignment", e.target.value);
     };
+    document.getElementById("qSortMentionRate").onchange = (e) => {
+      setQualityQuestionSort("mentionRate", e.target.value);
+    };
+    document.getElementById("qSortContentQuality").onchange = (e) => {
+      setQualityQuestionSort("total_content_quality", e.target.value);
+    };
     document.getElementById("forgotPasswordBtn").onclick = requestPasswordReset;
     document.getElementById("registerRequestBtn").onclick = requestAccessRegistration;
     document.getElementById("pwdCancelBtn").onclick = hidePasswordModal;
@@ -3114,6 +3353,7 @@ function geoExecutivePage({ orgHint = "" } = {}) {
       setIdentity(meData.user || data.user, meData.org || { orgId: data.user?.orgId, name: data.user?.orgId });
       hideLogin();
       await refreshAdminCapability();
+      await loadAppearanceForDashboard();
       await loadGeoConfigForDashboard();
       await loadBatches();
       await renderOverview();
@@ -3240,6 +3480,7 @@ function geoExecutivePage({ orgHint = "" } = {}) {
       document.getElementById("trendEnd").value = toIsoDay(end);
       try {
         await requireAuthReady();
+        await loadAppearanceForDashboard();
         await loadGeoConfigForDashboard();
         await loadBatches();
         await renderOverview();
@@ -3903,6 +4144,46 @@ export function createDashboardHandler({ cwd }) {
         return;
       }
 
+      if (req.method === "GET" && url.pathname === "/api/admin/appearance") {
+        const ctx = await getAuthContext(req, requestedOrgId);
+        if (!ctx || !ctx.isAdmin) {
+          sendJson(res, 403, { error: "Admin access required." });
+          return;
+        }
+        const appearance = await getAppearance({ cwd, orgId: ctx.orgId });
+        sendJson(res, 200, appearance);
+        return;
+      }
+
+      if (req.method === "PUT" && url.pathname === "/api/admin/appearance") {
+        const ctx = await getAuthContext(req, requestedOrgId);
+        if (!ctx || !ctx.isAdmin) {
+          sendJson(res, 403, { error: "Admin access required." });
+          return;
+        }
+        const body = await parseJsonBody(req);
+        const appearance = await saveAppearance({
+          cwd,
+          orgId: ctx.orgId,
+          appearance: body,
+          actor: { userId: ctx.user.userId, email: ctx.user.email },
+        });
+        sendJson(res, 200, { ok: true, appearance });
+        return;
+      }
+
+      if (req.method === "POST" && url.pathname === "/api/admin/appearance/suggest") {
+        const ctx = await getAuthContext(req, requestedOrgId);
+        if (!ctx || !ctx.isAdmin) {
+          sendJson(res, 403, { error: "Admin access required." });
+          return;
+        }
+        const orgName = String(process.env.ORG_DISPLAY_NAME || ctx.orgId || "GEOrge");
+        const appearance = await suggestAppearance({ orgId: ctx.orgId, orgName });
+        sendJson(res, 200, { ok: true, appearance });
+        return;
+      }
+
       if (req.method === "POST" && url.pathname === "/api/admin/scrub-placeholder-sources") {
         const ctx = await getAuthContext(req, requestedOrgId);
         if (!ctx || !ctx.isAdmin) {
@@ -4369,6 +4650,11 @@ export function createDashboardHandler({ cwd }) {
 
       if (req.method === "GET" && url.pathname === "/api/geo/config") {
         sendJson(res, 200, await getGeoConfig({ cwd, orgId: authCtx.orgId }));
+        return;
+      }
+
+      if (req.method === "GET" && url.pathname === "/api/appearance") {
+        sendJson(res, 200, await getAppearance({ cwd, orgId: authCtx.orgId }));
         return;
       }
 
