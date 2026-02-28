@@ -1,0 +1,184 @@
+Policy: Data Classification
+   1. Purpose
+   The purpose of the Destination Vancouver Data Classification Policy (the “Policy”) is to establish a consistent framework for identifying,
+   classifying, and protecting the organization's data assets. This Policy provides a clear and consistent structure for categorizing data based on its
+   level of sensitivity, value, and risk to the organization.
+   This classification system enables informed decisions about how data can be stored, shared, and used — including what data may be safely
+   uploaded to or extracted by artificial intelligence (“AI”) tools.
+   By implementing this Policy, we aim to:
+           ▪   Safeguard information from unauthorized access, use, or disclosure.
+           ▪   Ensure compliance with legal, regulatory, and contractual obligations, including British Columbia's Personal Information Protection
+               Act (PIPA).
+           ▪   Empower Destination Vancouver employees, contractors and volunteers (collectively, “Team Members”) to handle data responsibly
+               and make informed decisions about its use with new technologies.
+           ▪   Support and supplement the expectations established in Destination Vancouver’s Artificial Intelligence Driven Tools Policy Data
+At Destination Vancouver, data refers to any piece of information that is collected, created, received, stored, processed, or shared in the course of
+our work — regardless of format or system.
+Data can exist as:
+   ▪   A record (e.g., an entry in a CRM or database);
+   ▪   A document’s content (e.g., a report, strategic plan, or contract); or
+   ▪   A file or object (e.g., image, audio clip, email, chat message).
+
+Data may be ‘structured’ (e.g., spreadsheets, forms, tables) or unstructured (e.g., PDFs, Word documents, presentation slides, notes, emails,
+recorded calls, or freeform text in meeting tools).
+
+
+
+
+Destination Vancouver Data Classification Policy – January 9, 2026
+                                                                                                                                                        1
+Examples of data include, but are not limited to:
+   ▪   Meeting minutes in Word
+   ▪   Email correspondence with partners
+   ▪   A PDF report from a vendor
+   ▪   A photo uploaded to Box or official social media channels
+   ▪   Budget numbers in an Excel file
+   ▪   Client records in SimpleView CRM
+   ▪   Internal chat conversations in 8x8 or MS Teams
+   ▪   Research data stored by third-party providers
+
+Each of these may contain content that is subject to classification under this Policy depending on its purpose, audience, and risk.
+
+   2. Scope
+   This Policy applies to all data created, received, stored, processed, or shared by Team Members and authorized partners in the course of
+   business.
+   The scope encompasses all organizational data, regardless of its format (digital or physical), across both structured systems (e.g., CRM
+   platforms like SimpleView) and unstructured sources (e.g., emails, chat messages, meeting notes, documents, audio, and video files).
+   The Policy covers data stored in organization-managed systems such as Microsoft Outlook, Teams, Box, and 8x8, as well as any data shared
+   with third-party service providers or accessed via AI tools. This classification framework also informs what data may be extracted or inputted
+   using integrated AI tools in the future. This classification framework is intended to support day-to-day operational use and to guide decision-
+   making related to AI tool experimentation, enterprise tool adoption, and responsible data sharing.
+
+   3. Roles and responsibilities
+           a. Data Owners
+               The Director Leadership Team (DLT) or designated Team Members are Data Owners for the data assets created and managed by
+               their teams. Their responsibilities include:
+                   •   Classifying all data assets within their purview according to this Policy in the Data Inventory & Classification Report.
+                   •   Reviewing data classifications periodically to ensure they remain accurate.
+                   •   Communicating any changes in data sensitivity to Destination Vancouver’s Privacy Officer.
+Destination Vancouver Data Classification Policy – January 9, 2026
+                                                                                                                                                     2
+           b. Policy oversight
+               Destination Vancouver’s Privacy Officer has oversight for this document, with overall responsibility for its implementation and
+               maintenance. Their responsibilities include:
+                  •   Administering this Policy and developing related procedures.
+                  •   Coordinating training for all Team Members on data handling best practices.
+                  •   Supporting Data Owners in applying the classification framework.
+                  •   Ensuring organizational compliance with relevant privacy regulations like PIPA.
+           c. AI Council (AI Strategic Oversight)
+               The AI Council provides strategic oversight to ensure this Policy aligns with the organization's AI governance objectives. Their
+               responsibilities include:
+                  •   Reviewing this Policy annually to ensure it effectively addresses AI-related risks and opportunities.
+                  •   Advising on how data classification impacts the approval and use of AI tools.
+                  •   Recommending updates to the classification framework as AI technologies evolve.
+           d. All Team Members
+               Every Team Member is responsible for protecting the data they handle in their daily work. Responsibilities include:
+                  •   Understanding and applying the correct data classifications.
+                  •   Following all handling, storage, and sharing rules for each data tier.
+                  •   Reporting any potential data mishandling or Policy violations immediately.
+
+
+
+
+Destination Vancouver Data Classification Policy – January 9, 2026
+                                                                                                                                                  3
+   4. Classification Tiers
+ Classification     Definition                            Examples
+ Tier
+
+ Public             Public as used in this Policy is a      •   Website content
+                    type of data classification which       •   Press releases
+                    comprises information approved          •   Published visitor guides, maps, public resources
+                    for general public consumption          •   Social media post copy
+                    and distribution or is legitimately     •   Sales collateral and materials
+                    publicly available, and not by any
+                    contractual, legal or other
+                    breach.
+
+ Internal or        Internal or Confidential as used        •   All-staff communications
+ Confidential       in this Policy is a type of data        •   Internal project plans (before launch)
+                    classification which comprises          •   Draft marketing copy
+                    non-public business or                  •   General meeting notes
+                    commercial data or sensitive            •   Unpublished strategic plans
+                    business or commercial data             •   Departmental budgets
+                    requiring specific authorization        •   Unpublished market research
+                    for access. Unauthorized
+                    disclosure could cause harm to
+                    the organization or to third
+                    parties.
+
+ Restricted         Restricted as used in this Policy       •   Board meeting minutes and materials
+                    is a type of data classification        •   Member, visitor, client, media, partner and board member personal information
+                    which comprises sensitive data          •   Legal advice, documents prepared for litigation, and professional opinions
+                    protected by law (such as               •   Convention client data subject to a nondisclosure agreement or other
+                    personal information protected              confidentiality agreement
+                    by the British Columbia Personal        •   Payment card data
+                    Information Protection Act),            •   Employee personal information, including, but not limited to financial, health,
+                    contract (such as non-disclosure            performance, personal contact information, etc.
+                    agreements, confidentiality
+Destination Vancouver Data Classification Policy – January 9, 2026
+                                                                                                                                                  4
+                    agreements, etc.), or that carries           •   Any information — including, without limitation, unreleased plans, ideas,
+                    significant financial or legal risk if           concepts, or announcements — the disclosure of which could:
+                    disclosed. Restricted data                          o Harm significantly the competitive or negotiating position of the
+                    requires the strictest access                           organization,
+                    controls and disclosure of                          o Result in similar information no longer being supplied to the organization,
+                    Restricted data could cause                         o Cause undue financial or reputational loss to any person or entity.
+                    significant harm to the
+                    organization or to third parties.
+
+
+
+   5. Data Handling Guidelines
+   Data at Destination Vancouver must be handled in accordance with its assigned classification to protect its integrity and ensure compliance with
+   all applicable laws. The following requirements apply to all data, including structured and unstructured formats:
+
+    Classification Tier             Storage                          Access & Sharing             Use in AI Tools            Retention & Disposal
+    Public                          Can be stored in public or       May be shared without        Freely usable in AI        Maintain archival copy;
+    (e.g., published reports,       internal systems.                restriction.                 tools.                     delete only if outdated.
+    press releases)
+    Internal or Confidential        Stored in approved, or           Shared only with internal    May be used with AI        Retain based on business
+    (e.g., internal strategy,       official access-controlled       teams and contractors        tools (with data sharing   need; dispose of securely
+    meeting notes, drafts)          systems that track user          and vetted partners with a   off), provided the data    when obsolete.
+                                    activity. (e.g., Teams,          clear business purpose.      contains no personal
+                                    Box).                                                         information.
+    Restricted                      Must be stored with              Access is limited to         Not permitted.             Retained only as long as
+    (e.g., personal                 reasonable security              named roles with a                                      necessary to fulfill the stated
+    information, information        arrangements as                  legitimate "need-to-know."                              purpose.
+    subject to confidentiality      required by PIPA. This           Sharing externally                                         • Financial/tax
+    obligations, board meeting      includes strong                  requires explicit,                                             records: Minimum 7
+    minutes, payment card           encryption, strict access        documented consent or a                                        years.
+    data)                           controls, and audit logs.        legal obligation.                                          • Employee records:
+                                                                                                                                    Minimum 7 years
+                                                                                                                                    after employment
+                                                                                                                                    ends.
+
+
+Destination Vancouver Data Classification Policy – January 9, 2026
+                                                                                                                                                               5
+                                                                                                                                •   Must be disposed of
+                                                                                                                                    securely
+
+
+
+   6. AI Specific Guidance
+
+Before inputting any information into an AI tool, Team Members must assess whether the data is appropriate for use based on its classification and
+the nature of the tool.
+   •   All Team Members must refer to this Data Classification Policy to determine the classification level of the data they wish to use.
+   •   If needed, the Data Inventory and Classification Report contains a comprehensive list of data and their classification tier, which Team
+       Members can reference
+   •   They must also refer to the Artificial Intelligence Driven Tools Policy to determine whether the AI tool is a Type A Tool (where data may
+       be retained, shared or used for training the algorithm for third parties) or a Type B Tool (where data sharing can be disabled or is
+       contractually restricted).
+   •   Input of data is only permitted if it complies with the data handling guidance for that classification level and tool type and with the Artificial
+       Intelligence Driven Tools Policy.
+No data may be input into any AI system unless the Team Member can confidently determine that the use aligns with Destination Vancouver’s
+current data governance policies.
+
+
+
+
+Destination Vancouver Data Classification Policy – January 9, 2026
+                                                                                                                                                            6
+

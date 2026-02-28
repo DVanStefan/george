@@ -1,0 +1,15 @@
+{
+  "run_id": "string",
+  "objective": "string",
+  "kpis": [
+    { "id": "k1", "name": "string", "target": "string", "period": "string" }
+  ],
+  "strategies": [
+    { "id": "s1", "title": "string", "description": "string", "estimatedCost": "string" }
+  ],
+  "timeline": [
+    { "phase": "string", "window": "string", "deliverables": ["string"] }
+  ],
+  "dependencies": ["string"],
+  "assumptions": ["string"]
+}

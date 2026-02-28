@@ -1,0 +1,10 @@
+[
+  {
+    "taskId": "T1",
+    "task": "string",
+    "ownerRole": "string",
+    "dueWindow": "string",
+    "status": "planned",
+    "requiresApproval": true
+  }
+]

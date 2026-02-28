@@ -1,0 +1,20 @@
+{
+  "hosting": {
+    "site": "george-geo",
+    "public": "web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "run": {
+          "serviceId": "dmo-geo",
+          "region": "us-west1"
+        }
+      }
+    ]
+  }
+}

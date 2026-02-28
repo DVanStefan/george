@@ -1,0 +1,126 @@
+{
+  "mode": "local_controlled",
+  "toolType": "TypeB",
+  "ingestion": {
+    "enabled": true,
+    "allowedRoots": [
+      "data"
+    ],
+    "maxBytesPerFile": 600000
+  },
+  "classification": {
+    "requireMetadata": true,
+    "requireApprovedForTypeB": true,
+    "allowedClassifications": [
+      "Public",
+      "Internal or Confidential"
+    ],
+    "blockedClassifications": [
+      "Restricted"
+    ]
+  },
+  "prohibitedUseCases": [
+    "illegal_activity",
+    "rights_infringement",
+    "bullying_harassment_discrimination",
+    "deception_or_manipulation",
+    "professional_judgment_decisions",
+    "employment_decisions"
+  ],
+  "memory": {
+    "enabled": true,
+    "maxRetrievedChunks": 6,
+    "profilesEnabled": true,
+    "profileFiles": [
+      "brand_voice.md",
+      "positioning.md"
+    ]
+  },
+  "knowledge": {
+    "enabled": true,
+    "roots": [
+      "docs",
+      "data"
+    ],
+    "includeExtensions": [
+      ".md",
+      ".txt"
+    ],
+    "maxRetrievedChunks": 4
+  },
+  "webResearch": {
+    "enabled": false,
+    "model": "gpt-4.1-mini",
+    "citationRequired": true,
+    "allowedDomains": []
+  },
+  "workflow": {
+    "qaGateEnabled": true,
+    "maxQaRevisionLoops": 1,
+    "parallelStages": [
+      "research",
+      "operations",
+      "finance",
+      "measurement"
+    ],
+    "revisionStages": [
+      "program",
+      "operations",
+      "finance",
+      "measurement",
+      "synthesis",
+      "risk",
+      "qa"
+    ]
+  },
+  "agentGuardrails": {
+    "intake": [
+      "Do not skip explicit constraints and assumptions in intake output."
+    ],
+    "strategy": [
+      "Propose at least two viable strategy options with KPI implications."
+    ],
+    "plan": [
+      "Do not invent decisions that imply real-world approvals."
+    ],
+    "research": [
+      "Every external factual claim must include a source citation id when sources are available.",
+      "If evidence is missing, mark Unknown - needs verification."
+    ],
+    "program": [
+      "Translate strategy into concrete work breakdown tasks and action objects."
+    ],
+    "operations": [
+      "Actions must stay simulation-only and never imply external outreach happened."
+    ],
+    "finance": [
+      "Budget estimates must include assumptions and uncertainty notes."
+    ],
+    "measurement": [
+      "Metrics must include owner role and reporting cadence."
+    ],
+    "synthesis": [
+      "Produce a cohesive executable package with clear next checkpoints."
+    ],
+    "risk": [
+      "Highlight compliance, legal, and data handling risk clearly."
+    ],
+    "draft": [
+      "Do not present uncertain claims as facts."
+    ],
+    "edit": [
+      "Preserve citations and uncertainty notes."
+    ],
+    "qa": [
+      "Fail only for hard-risk policy or safety issues; treat minor improvements as advisory."
+    ]
+  },
+  "evaluation": {
+    "enabled": true,
+    "minOverallScoreToPass": 70
+  },
+  "trace": {
+    "logInputs": true,
+    "logOutputs": true
+  }
+}

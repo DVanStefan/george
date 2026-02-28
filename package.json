@@ -1,0 +1,36 @@
+{
+  "name": "dmo-geo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/cli.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "run": "node src/cli.js run",
+    "chat": "node src/cli.js chat",
+    "ingest": "node src/cli.js ingest",
+    "trace": "node src/cli.js trace",
+    "evaluate": "node src/cli.js evaluate",
+    "dashboard": "node src/cli.js dashboard",
+    "server:start": "node server/index.js",
+    "server:start:firestore": "set DATA_BACKEND=firestore&& node server/index.js",
+    "bootstrap": "node src/cli.js bootstrap",
+    "agents:list": "node src/cli.js agents:list",
+    "agents:bootstrap": "node src/cli.js agents:bootstrap",
+    "agents:add": "node src/cli.js agents:add",
+    "agents:enable": "node src/cli.js agents:enable",
+    "agents:disable": "node src/cli.js agents:disable",
+    "agents:remove": "node src/cli.js agents:remove",
+    "geo:migrate:firestore": "node src/migrate-geo-to-firestore.js",
+    "geo:run:scheduled": "node src/geo-scheduled-run.js",
+    "test": "echo \"No tests configured\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "firebase-admin": "^13.6.1",
+    "openai": "^6.21.0"
+  }
+}

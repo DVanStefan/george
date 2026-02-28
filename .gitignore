@@ -1,0 +1,14 @@
+node_modules/
+.env
+runs/
+memory/
+.firebase-config/
+.firebase/
+firebase-debug.log
+dashboard.out.log
+dashboard.err.log
+secrets/
+
+.git_backup*
+tmp_*
+*.tmp

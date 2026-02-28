@@ -1,0 +1,12 @@
+node_modules
+npm-debug.log
+.env
+.firebase-config
+runs
+memory
+data
+secrets
+.git
+.gitignore
+firebase-debug.log
+
