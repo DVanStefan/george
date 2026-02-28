@@ -22,6 +22,7 @@
     "agents:remove": "node src/cli.js agents:remove",
     "geo:migrate:firestore": "node src/migrate-geo-to-firestore.js",
     "geo:run:scheduled": "node src/geo-scheduled-run.js",
+    "geo:run:watchdog": "node src/geo-schedule-watchdog.js",
     "test": "echo \"No tests configured\""
   },
   "keywords": [],

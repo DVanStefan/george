@@ -9,6 +9,7 @@ Standalone GEO measurement product.
 - GEO batch APIs (`/api/geo/*`)
 - Firestore-backed batch persistence
 - Scheduled cloud runner (`src/geo-scheduled-run.js`)
+- Recovery watchdog runner (`src/geo-schedule-watchdog.js`)
 - Auth with roles (`admin`, `member`), invite acceptance, and password reset requests
 - Self-registration requests with admin approval queue
 
@@ -36,6 +37,7 @@ GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json
 ```powershell
 npm run server:start
 npm run geo:run:scheduled
+npm run geo:run:watchdog
 npm run geo:migrate:firestore
 ```
 
@@ -44,3 +46,4 @@ npm run geo:migrate:firestore
 - Cloud Run service should serve this app only.
 - Cloud Run Job `dv-geo-scheduled-run` executes the scheduled GEO batch runner.
 - Cloud Scheduler triggers the job on cron.
+- Cloud Run Job `dv-geo-schedule-watchdog` executes hourly recovery attempts if no completed daily batch exists.
