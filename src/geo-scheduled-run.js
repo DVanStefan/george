@@ -5,6 +5,7 @@ import {
   DEFAULT_PROMPTS,
   DEFAULT_PROVIDERS,
   initGeoBatch,
+  listGeoBatches,
   runGeoBatch,
   updateGeoBatch,
 } from "./lib/geo-measurement.js";
@@ -54,6 +55,47 @@ function compactSamplesForFirestore(samples) {
   }));
 }
 
+function minutesToMs(value, fallback) {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n <= 0) return fallback;
+  return Math.floor(n * 60 * 1000);
+}
+
+async function healOrSkipRunningBatches({ cwd, orgId }) {
+  const staleAfterMs = minutesToMs(process.env.GEO_STALE_RUNNING_MINUTES, 180 * 60 * 1000);
+  const now = Date.now();
+  const rows = await listGeoBatches(cwd, orgId);
+  const running = rows.filter((r) => String(r.status || "").toLowerCase() === "running");
+  if (running.length === 0) return { skipped: false, healed: 0 };
+
+  let healed = 0;
+  for (const row of running) {
+    const createdMs = Date.parse(String(row.createdAt || ""));
+    const ageMs = Number.isFinite(createdMs) ? now - createdMs : Number.POSITIVE_INFINITY;
+    if (ageMs >= staleAfterMs) {
+      await updateGeoBatch({
+        cwd,
+        batchId: row.batchId,
+        orgId,
+        mutate: (batch) => ({
+          ...batch,
+          status: "failed",
+          lastError: `Auto-marked failed by scheduler watchdog after ${Math.round(
+            staleAfterMs / 60000
+          )}m with no completion.`,
+          completedAt: new Date().toISOString(),
+        }),
+      });
+      healed += 1;
+      console.log(`Watchdog marked stale running batch as failed: ${row.batchId}`);
+    } else {
+      console.log(`Skipping scheduled run because active batch is still running: ${row.batchId}`);
+      return { skipped: true, healed };
+    }
+  }
+  return { skipped: false, healed };
+}
+
 async function main() {
   const cwd = process.cwd();
   const orgId = String(process.env.GEO_SCHEDULE_ORG_ID || process.env.DEFAULT_ORG_ID || "vancouver");
@@ -77,6 +119,14 @@ async function main() {
     geoConfigHash: String(cfg?.configHash || ""),
     geoConfigSnapshot,
   };
+
+  const guard = await healOrSkipRunningBatches({ cwd, orgId });
+  if (guard.healed > 0) {
+    console.log(`Watchdog healed ${guard.healed} stale running batch(es) before starting new run.`);
+  }
+  if (guard.skipped) {
+    return;
+  }
 
   const batchId = `geo-${new Date().toISOString().replace(/[:.]/g, "-")}-${randomUUID().slice(0, 8)}`;
   console.log(`Starting scheduled GEO batch: ${batchId}`);
