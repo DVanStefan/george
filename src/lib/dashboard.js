@@ -1262,7 +1262,7 @@ function geoExecutivePage({ orgHint = "" } = {}) {
 
     <div class="tabs">
       <button id="tabOverviewBtn" class="tab active">Overview</button>
-      <button id="tabDrillBtn" class="tab">Drilldown</button>
+      <button id="tabDrillBtn" class="tab">Sources</button>
       <button id="tabQualityBtn" class="tab">Content Quality</button>
       <button id="tabRunBtn" class="tab">Run</button>
       <button id="tabAdminBtn" class="tab">Admin</button>
