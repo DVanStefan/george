@@ -1,4 +1,4 @@
-import crypto from "crypto";
+﻿import crypto from "crypto";
 import fs from "fs";
 import http from "http";
 import path from "path";
@@ -1209,32 +1209,63 @@ function geoExecutivePage({ orgHint = "" } = {}) {
     .trendSvg { width:100%; height:auto; display:block; }
     table { width:100%; border-collapse:collapse; font-size:13px; }
     th, td { border-bottom:1px solid var(--line); text-align:left; padding:6px; }
+    .qualityQuestionTable tbody tr { cursor:pointer; transition: background 140ms ease; }
+    .qualityQuestionTable tbody tr:hover { background:#f3fbf9; }
+    .qualityQuestionTable tbody tr.active { background:linear-gradient(90deg,#e8f7f3,#f7fcfb); box-shadow: inset 3px 0 0 var(--accent); }
+    .qualityQuestionKey { display:flex; align-items:flex-start; gap:8px; }
+    .qualityQuestionBullet { color:var(--accent); font-size:14px; line-height:1.2; margin-top:1px; }
+    .questionDetail { margin-top:12px; border:1px solid var(--line); border-radius:12px; background:linear-gradient(180deg,#ffffff,#f8fcfb); overflow:hidden; }
+    .questionDetailHead { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; padding:10px 12px; border-bottom:1px solid var(--line); background:#edf8f5; }
+    .questionDetailTitle { margin:0; font-size:18px; line-height:1.25; }
+    .questionDetailClose { border:1px solid var(--line); border-radius:999px; background:#fff; color:var(--muted); width:28px; height:28px; font-size:16px; cursor:pointer; }
+    .questionDetailBody { padding:12px; }
+    .questionDetailGrid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .sourceList { margin:0; padding-left:18px; font-size:13px; display:grid; gap:4px; }
+    .periodTabs { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px; }
     .option { border:1px solid var(--line); border-radius:8px; padding:8px; background:#fff; margin-top:8px; }
     .status { margin-top:8px; padding:8px; border:1px solid var(--line); border-radius:8px; background:#f8faf8; font-size:12px; }
     .status.err { color:var(--err); background:#fee2e2; border-color:#fecaca; }
     button.primary { border:1px solid var(--accent); color:#fff; background:linear-gradient(180deg,var(--accent2),var(--accent)); border-radius:8px; padding:8px 12px; font-weight:700; cursor:pointer; }
-    @media (max-width:1000px){ .kpis{grid-template-columns:1fr 1fr;} .grid2,.row{grid-template-columns:1fr;} }
+    .authPage { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; background:radial-gradient(1200px 500px at 20% 10%, rgba(30,163,153,.18), transparent), var(--bg); }
+    .authCard { width:min(460px,92vw); background:#fff; border:1px solid #cfe0d8; border-radius:16px; padding:18px; box-shadow:0 20px 50px rgba(9,26,21,.25); }
+    .authTitle { margin:0; font-size:36px; line-height:1; letter-spacing:.3px; }
+    .authSubtitle { margin:8px 0 14px; color:var(--muted); font-size:13px; }
+    .authGrid { display:grid; gap:10px; }
+    .authLabel { color:#3f5f53; font-size:12px; font-weight:700; letter-spacing:.2px; }
+    .authInput { width:100%; border:1px solid var(--line); border-radius:10px; padding:10px 12px; font:inherit; background:#fff; box-sizing:border-box; }
+    .authInput:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(15,118,110,.15); }
+    .authActions { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:12px; }
+    .authHelp { display:flex; gap:8px; flex-wrap:wrap; }
+    .authPrimary { min-width:110px; }
+    .siteFooter { margin-top:18px; padding-top:12px; border-top:1px solid var(--line); display:flex; justify-content:flex-end; }
+    .footerLink { color:var(--accent); font-size:12px; text-decoration:none; font-weight:700; }
+    .footerLink:hover { text-decoration:underline; }
+    .aboutOverlay { position:fixed; inset:0; background:rgba(11,21,17,0.48); display:none; align-items:center; justify-content:center; z-index:70; }
+    .aboutCard { width:min(560px,92vw); background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px; box-shadow:0 20px 50px rgba(9,26,21,.25); }
+    .aboutTitle { margin:0 0 6px; font-size:24px; }
+    .aboutLine { margin:0 0 4px; font-size:14px; }
+    @media (max-width:1000px){ .kpis{grid-template-columns:1fr 1fr;} .grid2,.row,.questionDetailGrid{grid-template-columns:1fr;} }
   </style>
 </head>
 <body>
-  <div id="loginOverlay" style="position:fixed; inset:0; background:rgba(11,21,17,0.45); display:flex; align-items:center; justify-content:center; z-index:50;">
-    <div style="width:min(420px,92vw); background:#fff; border:1px solid #d4dfd8; border-radius:12px; padding:14px;">
-      <h3 style="margin:0 0 8px;">Sign In</h3>
-      <div class="muted" style="margin-bottom:10px;">Access is scoped to your organization. New users join via an invite link from an admin.</div>
-      <label class="muted">Name (for access request)</label>
-      <input id="registerName" type="text" placeholder="Your full name" />
-      <label class="muted">Email</label>
-      <input id="loginEmail" type="email" placeholder="you@organization.com" />
-      <label class="muted" style="display:block; margin-top:8px;">Password</label>
-      <input id="loginPassword" type="password" />
-      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:10px;">
-        <div style="display:flex; gap:8px;">
+  <div id="loginPage" class="authPage">
+    <div class="authCard">
+      <h3 class="authTitle">Sign In</h3>
+      <div class="authSubtitle">Access is scoped to your organization. New users can request approval from an admin.</div>
+      <div class="authGrid">
+        <label class="authLabel" for="loginEmail">Email</label>
+        <input id="loginEmail" class="authInput" type="email" placeholder="you@organization.com" />
+        <label class="authLabel" for="loginPassword">Password</label>
+        <input id="loginPassword" class="authInput" type="password" />
+      </div>
+      <div class="authActions">
+        <div class="authHelp">
           <button id="forgotPasswordBtn" class="chip" type="button">Forgot password?</button>
           <button id="registerRequestBtn" class="chip" type="button">Request Access</button>
         </div>
-        <button id="loginBtn" class="primary">Sign In</button>
+        <button id="loginBtn" class="primary authPrimary">Sign In</button>
       </div>
-      <div id="loginStatus" class="status" style="margin-top:8px;">Enter your credentials.</div>
+      <div id="loginStatus" class="status hidden" style="margin-top:8px;"></div>
     </div>
   </div>
   <div id="passwordOverlay" style="position:fixed; inset:0; background:rgba(11,21,17,0.45); display:none; align-items:center; justify-content:center; z-index:55;">
@@ -1253,7 +1284,7 @@ function geoExecutivePage({ orgHint = "" } = {}) {
       <div id="pwdStatus" class="status" style="margin-top:8px;">Enter your current password and choose a new one.</div>
     </div>
   </div>
-  <div class="wrap">
+  <div id="appShell" class="wrap hidden">
     <div style="display:flex; align-items:center; gap:10px;">
       <img id="orgLogo" src="/assets/destination-vancouver-logo.png" alt="Org logo" style="width:44px;height:44px;object-fit:contain;border:1px solid #d4dfd8;border-radius:8px;background:#fff;" />
       <h1 style="margin:0;">GEOrge Dashboard</h1>
@@ -1419,6 +1450,7 @@ function geoExecutivePage({ orgHint = "" } = {}) {
           </div>
         </div>
         <div id="qualityQuestion"></div>
+        <div id="qualityQuestionDetail" class="questionDetail hidden"></div>
       </div>
     </div>
 
@@ -1585,13 +1617,19 @@ function geoExecutivePage({ orgHint = "" } = {}) {
         </div>
         <div class="card" style="margin-top:12px;">
           <h3 style="margin:0 0 8px;">Questions</h3>
-          <div class="option">
+          <div id="geoQuestionsTable" class="muted" style="margin-top:8px;">No questions.</div>
+          <div class="option" style="margin-top:10px;">
+            <h4 style="margin:0 0 8px;">Add a question</h4>
             <label class="muted" style="display:block;">Question</label>
-            <input id="geoNewQuestionPrompt" type="text" placeholder="What are the best places to eat in Vancouver?" style="width:100%; border:1px solid var(--line); border-radius:8px; padding:6px 8px; font:inherit; background:#fff;" />
-            <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
+            <input id="geoNewQuestionPrompt" type="text" placeholder="Enter question here" style="width:100%; border:1px solid var(--line); border-radius:8px; padding:6px 8px; font:inherit; background:#fff;" />
+            <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; align-items:flex-end;">
               <label class="muted">Category
                 <select id="geoNewQuestionCategory"></select>
               </label>
+              <label class="muted">Add category
+                <input id="geoInlineCategoryName" type="text" placeholder="New category name" style="width:220px; border:1px solid var(--line); border-radius:8px; padding:6px 8px; font:inherit; background:#fff;" />
+              </label>
+              <button id="geoInlineAddCategoryBtn" class="chip" type="button">Add Category</button>
               <label class="muted">Funnel
                 <select id="geoNewQuestionFunnel">
                   <option value="high">high</option>
@@ -1602,7 +1640,6 @@ function geoExecutivePage({ orgHint = "" } = {}) {
               <button id="geoAddQuestionBtn" class="chip" type="button">Add Question</button>
             </div>
           </div>
-          <div id="geoQuestionsTable" class="muted" style="margin-top:8px;">No questions.</div>
           <div style="margin-top:10px;">
             <button id="geoSaveConfigBtn" class="primary" type="button">Save GEO Config</button>
           </div>
@@ -1662,6 +1699,23 @@ function geoExecutivePage({ orgHint = "" } = {}) {
         </div>
       </div>
     </div>
+    <div class="siteFooter">
+      <a id="aboutOpenLink" class="footerLink" href="#">About This Site</a>
+    </div>
+  </div>
+
+  <div id="aboutOverlay" class="aboutOverlay">
+    <div class="aboutCard">
+      <h3 class="aboutTitle">About GEOrge</h3>
+      <div class="muted" style="margin-bottom:10px;">GEOrge is operated by Destination Vancouver.</div>
+      <p class="aboutLine"><strong>Destination Vancouver</strong></p>
+      <p class="aboutLine">200 Burrard Street, Suite 210</p>
+      <p class="aboutLine">Vancouver, BC V6C 3L6, Canada</p>
+      <p class="aboutLine">Phone: +1 604-682-2222</p>
+      <div style="display:flex; justify-content:flex-end; margin-top:12px;">
+        <button id="aboutCloseBtn" class="chip" type="button">Close</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -1680,6 +1734,9 @@ function geoExecutivePage({ orgHint = "" } = {}) {
     let qualityQuestionRows = [];
     let qualityQuestionSortKey = "";
     let qualityQuestionSortDir = "desc";
+    let qualityQuestionSelected = "";
+    let qualityQuestionTrendPeriod = "day";
+    let qualityScopedSamples = [];
     let adminUsers = [];
     let adminResetRequests = [];
     let adminInvites = [];
@@ -1736,6 +1793,11 @@ function geoExecutivePage({ orgHint = "" } = {}) {
       }
       updateAdminVisibility();
     }
+    function toggleAboutOverlay(show) {
+      const overlay = document.getElementById("aboutOverlay");
+      if (!overlay) return;
+      overlay.style.display = show ? "flex" : "none";
+    }
     function isAdminUser() {
       const role = String(currentUser?.role || "").trim().toLowerCase();
       return role === "admin" || role.includes("admin") || adminCapability;
@@ -1775,12 +1837,25 @@ function geoExecutivePage({ orgHint = "" } = {}) {
       }
     }
     function showLogin(message) {
-      const overlay = document.getElementById("loginOverlay");
-      overlay.style.display = "flex";
-      document.getElementById("loginStatus").textContent = message || "Enter your credentials.";
+      const page = document.getElementById("loginPage");
+      const shell = document.getElementById("appShell");
+      if (shell) shell.className = "wrap hidden";
+      if (page) page.style.display = "flex";
+      const status = document.getElementById("loginStatus");
+      if (!status) return;
+      if (message) {
+        status.className = "status";
+        status.textContent = message;
+      } else {
+        status.className = "status hidden";
+        status.textContent = "";
+      }
     }
     function hideLogin() {
-      document.getElementById("loginOverlay").style.display = "none";
+      const page = document.getElementById("loginPage");
+      const shell = document.getElementById("appShell");
+      if (page) page.style.display = "none";
+      if (shell) shell.className = "wrap";
     }
     function showPasswordModal(message, err) {
       document.getElementById("passwordOverlay").style.display = "flex";
@@ -1800,6 +1875,7 @@ function geoExecutivePage({ orgHint = "" } = {}) {
       if (!res.ok) return false;
       const data = await res.json();
       setIdentity(data.user, data.org);
+      hideLogin();
       refreshAdminCapability();
       return true;
     }
@@ -1970,6 +2046,18 @@ function geoExecutivePage({ orgHint = "" } = {}) {
       renderGeoCriteria();
       renderGeoCategories();
       renderGeoQuestions();
+    }
+    function addGeoCategoryFromInput(value) {
+      const name = String(value || "").trim();
+      if (!name) return { ok: false, error: "Category name is required." };
+      const id = name.toLowerCase().replace(/[^a-z0-9_-]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "") || "category";
+      const exists = (adminGeoConfig.categories || []).some((c) => c.id === id);
+      if (exists) return { ok: false, error: "Category id already exists." };
+      adminGeoConfig.categories.push({ id, name });
+      renderGeoConfigEditor();
+      const select = document.getElementById("geoNewQuestionCategory");
+      if (select) select.value = id;
+      return { ok: true, id };
     }
     function collectGeoConfigFromEditor() {
       const categories = Array.isArray(adminGeoConfig?.categories) ? adminGeoConfig.categories.slice() : [];
@@ -2309,7 +2397,6 @@ function geoExecutivePage({ orgHint = "" } = {}) {
       setInviteStatus("Invite created." + suffix);
     }
     async function requestAccessRegistration() {
-      const name = String(document.getElementById("registerName").value || "").trim();
       const email = String(document.getElementById("loginEmail").value || "").trim().toLowerCase();
       const status = document.getElementById("loginStatus");
       if (!email) {
@@ -2320,7 +2407,7 @@ function geoExecutivePage({ orgHint = "" } = {}) {
       const res = await fetch("/api/auth/register-request", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...(ORG_HINT ? { "x-dmo-org": ORG_HINT } : {}) },
-        body: JSON.stringify({ name, email, orgId: ORG_HINT || undefined }),
+        body: JSON.stringify({ email, orgId: ORG_HINT || undefined }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -2560,6 +2647,19 @@ function geoExecutivePage({ orgHint = "" } = {}) {
       const out = new Date(d);
       out.setDate(out.getDate() + n);
       return out;
+    }
+    function addMonths(d, n) {
+      const out = new Date(d);
+      out.setMonth(out.getMonth() + n);
+      return out;
+    }
+    function periodLabel(period) {
+      if (period === "day") return "Day";
+      if (period === "week") return "Week";
+      if (period === "month") return "Month";
+      if (period === "quarter") return "Quarter";
+      if (period === "year") return "Year";
+      return "Day";
     }
     function weekStart(d) {
       const out = new Date(d);
@@ -2806,8 +2906,12 @@ function geoExecutivePage({ orgHint = "" } = {}) {
     }
     function renderQualityQuestionTable() {
       const cols = ["key", "mentionRate", "sampleCount", "sentiment", "specificity", "brand_alignment", "total_content_quality"];
+      const root = document.getElementById("qualityQuestion");
+      if (!root) return;
       if (!qualityQuestionRows.length) {
-        renderTable("qualityQuestion", [], cols);
+        qualityQuestionSelected = "";
+        root.innerHTML = "<div class='muted'>No data.</div>";
+        renderQualityQuestionDetail();
         return;
       }
       const rows = [...qualityQuestionRows];
@@ -2825,7 +2929,226 @@ function geoExecutivePage({ orgHint = "" } = {}) {
           return String(a.key || "").localeCompare(String(b.key || ""));
         });
       }
-      renderTable("qualityQuestion", rows, cols);
+      const rowHtml = rows.map((r) => {
+        const key = String(r.key || "");
+        const active = key === qualityQuestionSelected ? " class='active'" : "";
+        return "<tr data-question-key='" + esc(key) + "'" + active + ">" +
+          cols.map((c) => {
+            if (c === "key") {
+              return "<td><span class='qualityQuestionKey'><span class='qualityQuestionBullet'>•</span><span>" + esc(String(r[c] || "")) + "</span></span></td>";
+            }
+            return "<td>" + esc(String(r[c] || "")) + "</td>";
+          }).join("") +
+        "</tr>";
+      }).join("");
+      root.innerHTML =
+        "<table class='qualityQuestionTable'><thead><tr>" +
+        cols.map((c) => "<th>" + esc(c === "key" ? "Select for further detail" : c) + "</th>").join("") +
+        "</tr></thead><tbody>" + rowHtml + "</tbody></table>";
+      root.onclick = async (e) => {
+        const row = e.target.closest("tr[data-question-key]");
+        if (!row) return;
+        qualityQuestionSelected = String(row.getAttribute("data-question-key") || "");
+        renderQualityQuestionTable();
+        await renderQualityQuestionDetail();
+      };
+      renderQualityQuestionDetail();
+    }
+    async function renderQualityQuestionDetail() {
+      const root = document.getElementById("qualityQuestionDetail");
+      if (!root) return;
+      if (!qualityQuestionSelected) {
+        root.className = "questionDetail hidden";
+        root.innerHTML = "";
+        return;
+      }
+
+      const allSamples = await getAllSamples();
+      const allForQuestion = (allSamples || []).filter(
+        (s) => !s.error && (s.question || "unknown") === qualityQuestionSelected && parseDate(s.at)
+      );
+      let scoped = [];
+      let marketRows = [];
+      let topSources = [];
+      let trendHtml = "<div class='muted'>No trend data for this question.</div>";
+      let trendMeta = "No dated samples yet.";
+      let periodStart = null;
+      let periodEnd = null;
+      if (allForQuestion.length) {
+        const sortedAt = allForQuestion.map((s) => parseDate(s.at)).sort((a, b) => a - b);
+        const latest = sortedAt[sortedAt.length - 1];
+        const earliest = sortedAt[0];
+        let start = new Date(latest);
+        const end = new Date(latest);
+        end.setHours(23, 59, 59, 999);
+        if (qualityQuestionTrendPeriod === "day") start = addDays(end, -1);
+        if (qualityQuestionTrendPeriod === "week") start = addDays(end, -7);
+        if (qualityQuestionTrendPeriod === "month") start = addDays(end, -30);
+        if (qualityQuestionTrendPeriod === "quarter") start = addMonths(end, -3);
+        if (qualityQuestionTrendPeriod === "year") start = addMonths(end, -12);
+        if (start < earliest) start = new Date(earliest);
+        periodStart = start;
+        periodEnd = end;
+        const scopedTrend = allForQuestion.filter((s) => {
+          const d = parseDate(s.at);
+          return d && d >= start && d <= end;
+        });
+        scoped = scopedTrend;
+        marketRows = qualityScores(scopedTrend).byMarket || [];
+        topSources = sourceCounts(scopedTrend, "all").slice(0, 10);
+
+        if (scopedTrend.length) {
+          const bucketKeys = [];
+          const bucketStartDate = weekStart(start);
+          const bucketEndDate = weekStart(end);
+          let cursor = new Date(bucketStartDate);
+          while (cursor <= bucketEndDate) {
+            bucketKeys.push(toIsoDay(cursor));
+            cursor = addDays(cursor, 7);
+          }
+          const bucketSet = new Set(bucketKeys);
+          const counts = new Map();
+          scopedTrend.forEach((sample) => {
+            const key = toIsoDay(weekStart(parseDate(sample.at)));
+            if (!bucketSet.has(key)) return;
+            const uniqDomains = [...new Set(sample.sourceDomains || [])];
+            uniqDomains.forEach((domain) => {
+              if (!counts.has(domain)) counts.set(domain, new Map());
+              const perBucket = counts.get(domain);
+              perBucket.set(key, (perBucket.get(key) || 0) + 1);
+            });
+          });
+          const ranked = [...counts.entries()]
+            .map(([domain, perBucket]) => ({
+              domain,
+              total: [...perBucket.values()].reduce((a, b) => a + b, 0),
+            }))
+            .sort((a, b) => b.total - a.total)
+            .slice(0, 10);
+
+          if (ranked.length) {
+            const pointsByDomain = ranked.map((r) => {
+              const perBucket = counts.get(r.domain) || new Map();
+              const values = bucketKeys.map((k) => Number(perBucket.get(k) || 0));
+              return { domain: r.domain, total: r.total, values };
+            });
+            const yMax = Math.max(1, ...pointsByDomain.flatMap((d) => d.values));
+            const w = 960;
+            const h = 280;
+            const ml = 40, mr = 10, mt = 12, mb = 30;
+            const cw = w - ml - mr;
+            const ch = h - mt - mb;
+            const xFor = (i) => ml + (bucketKeys.length <= 1 ? 0 : (i * cw) / (bucketKeys.length - 1));
+            const yFor = (v) => mt + ch - (v / yMax) * ch;
+            const grid = [0, 0.25, 0.5, 0.75, 1].map((p) => {
+              const y = mt + ch - (ch * p);
+              const val = Math.round(yMax * p);
+              return "<line x1='" + ml + "' y1='" + y.toFixed(1) + "' x2='" + (w - mr) + "' y2='" + y.toFixed(1) + "' stroke='#e5ece8' />" +
+                "<text x='" + (ml - 6) + "' y='" + (y + 4).toFixed(1) + "' font-size='10' text-anchor='end' fill='#6b7b71'>" + String(val) + "</text>";
+            }).join("");
+            const lines = pointsByDomain.map((d) => {
+              const color = domainColor(d.domain);
+              const pts = d.values.map((v, i) => xFor(i).toFixed(1) + "," + yFor(v).toFixed(1)).join(" ");
+              return "<polyline fill='none' stroke='" + esc(color) + "' stroke-width='2.1' points='" + pts + "' />";
+            }).join("");
+            const labelIdx = bucketKeys.length <= 3
+              ? bucketKeys.map((_, i) => i)
+              : [0, Math.floor((bucketKeys.length - 1) / 2), bucketKeys.length - 1];
+            const xTicks = [...new Set(labelIdx)].map((i) => {
+              const x = xFor(i);
+              return "<text x='" + x.toFixed(1) + "' y='" + (h - 8) + "' font-size='10' text-anchor='middle' fill='#6b7b71'>" + esc(bucketKeys[i]) + "</text>";
+            }).join("");
+            const legend = pointsByDomain.map((d) => {
+              const color = domainColor(d.domain);
+              return "<div class='trendItem'>" +
+                "<span class='trendDot' style='background:" + esc(color) + ";'></span>" +
+                "<img class='trendLogo' src='" + esc(logoUrl(d.domain)) + "' alt='' />" +
+                "<span>" + esc(d.domain) + "</span>" +
+                "<span class='muted' style='margin-left:auto;'>Total: " + esc(String(d.total)) + "</span>" +
+              "</div>";
+            }).join("");
+            trendHtml =
+              "<div class='trendWrap'><svg class='trendSvg' viewBox='0 0 " + w + " " + h + "'>" +
+              grid + lines + xTicks + "</svg></div>" +
+              "<div class='trendLegend' style='margin-top:8px;'>" + legend + "</div>";
+            trendMeta =
+              "Weekly trend | Duration: " + periodLabel(qualityQuestionTrendPeriod) +
+              " | Samples: " + String(scopedTrend.length) +
+              " | Sources: " + String(pointsByDomain.length);
+          } else {
+            trendHtml = "<div class='muted'>No source-domain data for selected period.</div>";
+            trendMeta = "No ranked sources in selected period.";
+          }
+        } else {
+          trendHtml = "<div class='muted'>No samples in selected period.</div>";
+          trendMeta = "No samples in selected period.";
+        }
+      }
+
+      const marketBars = marketRows.length
+        ? "<div class='bars'>" + marketRows.map((r) => {
+          const val = Number(r.total_content_quality || 0);
+          const width = Math.max(2, Math.round((Math.max(0, Math.min(5, val)) / 5) * 100));
+          return "<div class='bar'><div class='barTop'><strong>" + esc(r.key) + "</strong><span>Content Quality: " + esc(val.toFixed(2)) + "/5</span></div>" +
+            "<div class='track'><div class='fill' style='width:" + esc(String(width)) + "%;'></div></div>" +
+            "<div class='muted' style='margin-top:4px;'>Mention Rate: " + esc(String(r.mentionRate || 0)) + "% | Samples: " + esc(String(r.sampleCount || 0)) + "</div>" +
+          "</div>";
+        }).join("") + "</div>"
+        : "<div class='muted'>No market data in selected duration.</div>";
+
+      const sourceList = topSources.length
+        ? "<ol class='sourceList'>" + topSources.map((s) => "<li><strong>" + esc(s.domain) + "</strong> <span class='muted'>(" + esc(String(s.count)) + ")</span></li>").join("") + "</ol>"
+        : "<div class='muted'>No sources captured for this question in selected duration.</div>";
+      const durationMeta = periodStart && periodEnd
+        ? ("Duration: " + periodLabel(qualityQuestionTrendPeriod) + " (" + toIsoDay(periodStart) + " to " + toIsoDay(periodEnd) + ")")
+        : ("Duration: " + periodLabel(qualityQuestionTrendPeriod));
+
+      root.className = "questionDetail";
+      root.innerHTML =
+        "<div class='questionDetailHead'>" +
+          "<div>" +
+            "<h4 class='questionDetailTitle'>" + esc(qualityQuestionSelected) + "</h4>" +
+            "<div class='muted'>Expanded question diagnostics | " + esc(durationMeta) + "</div>" +
+          "</div>" +
+          "<button id='qualityQuestionCloseBtn' class='questionDetailClose' title='Close'>x</button>" +
+        "</div>" +
+        "<div class='questionDetailBody'>" +
+          "<div class='questionDetailGrid'>" +
+            "<div class='card'><h4 style='margin:0 0 8px;'>Content Quality by Tracked City (0-5)</h4>" + marketBars + "</div>" +
+            "<div class='card'><h4 style='margin:0 0 8px;'>Top 10 Sources</h4>" + sourceList + "</div>" +
+          "</div>" +
+          "<div class='card' style='margin-top:12px;'>" +
+            "<div class='periodTabs'>" +
+              "<strong>Top 10 Sources by Week</strong>" +
+              "<label class='muted'>Duration " +
+                "<select id='qqTrendDuration'>" +
+                  "<option value='day'" + (qualityQuestionTrendPeriod === "day" ? " selected" : "") + ">Day</option>" +
+                  "<option value='week'" + (qualityQuestionTrendPeriod === "week" ? " selected" : "") + ">Week</option>" +
+                  "<option value='month'" + (qualityQuestionTrendPeriod === "month" ? " selected" : "") + ">Month</option>" +
+                  "<option value='quarter'" + (qualityQuestionTrendPeriod === "quarter" ? " selected" : "") + ">Quarter</option>" +
+                  "<option value='year'" + (qualityQuestionTrendPeriod === "year" ? " selected" : "") + ">Year</option>" +
+                "</select>" +
+              "</label>" +
+            "</div>" +
+            "<div class='muted' style='margin-bottom:8px;'>" + esc(trendMeta) + "</div>" +
+            trendHtml +
+          "</div>" +
+        "</div>";
+
+      const closeBtn = document.getElementById("qualityQuestionCloseBtn");
+      if (closeBtn) {
+        closeBtn.onclick = () => {
+          qualityQuestionSelected = "";
+          renderQualityQuestionTable();
+        };
+      }
+      const durationSel = document.getElementById("qqTrendDuration");
+      if (durationSel) {
+        durationSel.onchange = async (e) => {
+          qualityQuestionTrendPeriod = String(e.target.value || "day");
+          await renderQualityQuestionDetail();
+        };
+      }
     }
     function setQualityQuestionSort(metric, dir) {
       qualityQuestionSortKey = "";
@@ -3120,6 +3443,7 @@ function geoExecutivePage({ orgHint = "" } = {}) {
       await renderQuestionTrend();
     }
     async function renderQuality(samples, scopedRuns) {
+      qualityScopedSamples = Array.isArray(samples) ? samples : [];
       const q = qualityScores(samples);
       document.getElementById("qualityMeta").textContent =
         "Runs: " + scopedRuns + " | Total samples: " + q.totalSamples + " | Vancouver-mentioned samples scored: " + q.sampleCount;
@@ -3133,6 +3457,9 @@ function geoExecutivePage({ orgHint = "" } = {}) {
       renderTable("qualityMarket", q.byMarket, ["key", "mentionRate", "sampleCount", "sentiment", "specificity", "brand_alignment", "total_content_quality"]);
       renderTable("qualityFunnel", q.byFunnel, ["key", "mentionRate", "sampleCount", "sentiment", "specificity", "brand_alignment", "total_content_quality"]);
       qualityQuestionRows = q.byQuestion || [];
+      if (qualityQuestionSelected && !qualityQuestionRows.some((r) => String(r.key || "") === qualityQuestionSelected)) {
+        qualityQuestionSelected = "";
+      }
       renderQualityQuestionTable();
     }
     async function renderOverview() {
@@ -3239,17 +3566,23 @@ function geoExecutivePage({ orgHint = "" } = {}) {
     document.getElementById("adminRefreshRegsBtn").onclick = async () => { await loadAdminUsers(); };
     document.getElementById("inviteCreateBtn").onclick = createInvite;
     document.getElementById("geoAddCategoryBtn").onclick = () => {
-      const name = String(document.getElementById("geoNewCategoryName").value || "").trim();
-      if (!name) return;
-      const id = name.toLowerCase().replace(/[^a-z0-9_-]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "") || "category";
-      const exists = (adminGeoConfig.categories || []).some((c) => c.id === id);
-      if (exists) {
-        setGeoStatus("Category id already exists.", true);
+      const input = document.getElementById("geoNewCategoryName");
+      const result = addGeoCategoryFromInput(input?.value || "");
+      if (!result.ok) {
+        setGeoStatus(result.error || "Could not add category.", true);
         return;
       }
-      adminGeoConfig.categories.push({ id, name });
-      document.getElementById("geoNewCategoryName").value = "";
-      renderGeoConfigEditor();
+      if (input) input.value = "";
+      setGeoStatus("Category added.");
+    };
+    document.getElementById("geoInlineAddCategoryBtn").onclick = () => {
+      const input = document.getElementById("geoInlineCategoryName");
+      const result = addGeoCategoryFromInput(input?.value || "");
+      if (!result.ok) {
+        setGeoStatus(result.error || "Could not add category.", true);
+        return;
+      }
+      if (input) input.value = "";
       setGeoStatus("Category added.");
     };
     document.getElementById("geoAddQuestionBtn").onclick = () => {
@@ -3468,6 +3801,23 @@ function geoExecutivePage({ orgHint = "" } = {}) {
       await renderOverview();
       setTab("drill");
     };
+    const aboutOpenLink = document.getElementById("aboutOpenLink");
+    if (aboutOpenLink) {
+      aboutOpenLink.onclick = (e) => {
+        e.preventDefault();
+        toggleAboutOverlay(true);
+      };
+    }
+    const aboutCloseBtn = document.getElementById("aboutCloseBtn");
+    if (aboutCloseBtn) {
+      aboutCloseBtn.onclick = () => toggleAboutOverlay(false);
+    }
+    const aboutOverlay = document.getElementById("aboutOverlay");
+    if (aboutOverlay) {
+      aboutOverlay.onclick = (e) => {
+        if (e.target === aboutOverlay) toggleAboutOverlay(false);
+      };
+    }
 
     (async function init() {
       updateAdminVisibility();
@@ -4713,3 +5063,4 @@ export function startDashboard({ cwd, port = 4173 }) {
   });
   return server;
 }
+

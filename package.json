@@ -23,6 +23,10 @@
     "geo:migrate:firestore": "node src/migrate-geo-to-firestore.js",
     "geo:run:scheduled": "node src/geo-scheduled-run.js",
     "geo:run:watchdog": "node src/geo-schedule-watchdog.js",
+    "deploy:hosting:dev": "firebase deploy --only hosting:dev --project dvan-agent-team",
+    "deploy:hosting:prod": "firebase deploy --only hosting:prod --project dvan-agent-team",
+    "deploy:run:dev": "gcloud run deploy dmo-geo-dev --source . --region us-west1 --project dvan-agent-team",
+    "deploy:run:prod": "gcloud run deploy dmo-geo --source . --region us-west1 --project dvan-agent-team",
     "test": "echo \"No tests configured\""
   },
   "keywords": [],

@@ -1,20 +1,40 @@
 {
-  "hosting": {
-    "site": "george-geo",
-    "public": "web",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
-    "rewrites": [
-      {
-        "source": "**",
-        "run": {
-          "serviceId": "dmo-geo",
-          "region": "us-west1"
+  "hosting": [
+    {
+      "target": "prod",
+      "public": "web",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "run": {
+            "serviceId": "dmo-geo",
+            "region": "us-west1"
+          }
         }
-      }
-    ]
-  }
+      ]
+    },
+    {
+      "target": "dev",
+      "public": "web",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "run": {
+            "serviceId": "dmo-geo-dev",
+            "region": "us-west1"
+          }
+        }
+      ]
+    }
+  ]
 }

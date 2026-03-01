@@ -1,6 +1,18 @@
 {
   "projects": {
     "default": "dvan-agent-team"
-  }
+  },
+  "targets": {
+    "dvan-agent-team": {
+      "hosting": {
+        "prod": [
+          "george-geo"
+        ],
+        "dev": [
+          "george-geo-sandbox"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }
-

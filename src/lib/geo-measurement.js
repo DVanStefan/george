@@ -200,28 +200,71 @@ function normalizeVancouverRank(value) {
 }
 
 function buildEvaluationPrompt({ question, market }) {
-  return `You are evaluating destination recommendation visibility.
+  const userQuestion = `${String(question || "").trim()} I'm asking from ${String(market || "").trim()}.`;
+  return `You are answering a traveler question.
 
-User market context: ${market}
-Question: ${question}
+Question: ${userQuestion}
 
-Respond with valid JSON only using this exact shape:
+Return valid JSON only in this exact shape:
 {
   "answer": "string",
-  "vancouverMentioned": true,
-  "vancouverRank": "top|included|not_listed|unknown",
   "destinations": [{"name": "string", "rank": 1}],
   "sourceUrls": ["https://publisher-domain.com/article"]
 }
 
 Rules:
-- Assume the traveler is from the market shown above.
-- If Vancouver is the first or best recommendation, use "top".
-- If Vancouver is listed but not first, use "included".
-- If Vancouver is absent, use "not_listed".
-- List up to 10 destination names in ranking order if available.
+- Answer naturally without biasing toward any specific destination.
+- Use the market context in the question.
+- List up to 10 destination names in ranked order if available.
+- If rank is unknown, keep order in the array from best to lower confidence.
 - Include specific source URLs used for the answer. If unavailable, return [].
 - JSON only; no markdown.`;
+}
+
+function normalizeDestinations(value) {
+  const arr = Array.isArray(value) ? value : [];
+  const out = [];
+  for (let i = 0; i < arr.length; i += 1) {
+    const item = arr[i];
+    if (typeof item === "string") {
+      const name = item.trim();
+      if (!name) continue;
+      out.push({ name, rank: i + 1 });
+      continue;
+    }
+    const name = String(item?.name || item?.city || "").trim();
+    if (!name) continue;
+    const rankRaw = Number(item?.rank);
+    const rank = Number.isFinite(rankRaw) && rankRaw > 0 ? Math.floor(rankRaw) : i + 1;
+    out.push({ name, rank });
+  }
+  return out.slice(0, 10);
+}
+
+function inferVancouverSignals({ destinations, answer }) {
+  const hasVancouverWord = (text) => /\bvancouver\b/i.test(String(text || ""));
+  let bestRank = null;
+  for (let i = 0; i < destinations.length; i += 1) {
+    const d = destinations[i];
+    if (!hasVancouverWord(d?.name)) continue;
+    const rankRaw = Number(d?.rank);
+    const rank = Number.isFinite(rankRaw) && rankRaw > 0 ? Math.floor(rankRaw) : i + 1;
+    bestRank = bestRank == null ? rank : Math.min(bestRank, rank);
+  }
+  const mentionedInDestinations = bestRank != null;
+  const mentionedInAnswer = hasVancouverWord(answer);
+  const mentioned = mentionedInDestinations || mentionedInAnswer;
+  if (!mentioned) return { vancouverMentioned: false, vancouverRank: "not_listed" };
+  if (mentionedInDestinations) {
+    return {
+      vancouverMentioned: true,
+      vancouverRank: bestRank === 1 ? "top" : "included",
+    };
+  }
+  return {
+    vancouverMentioned: true,
+    vancouverRank: "included",
+  };
 }
 
 async function runChatGptSample({ client, market, question, openaiModel }) {
@@ -299,11 +342,9 @@ function normalizeSampleResult({
     ? json.sourceUrls.filter((x) => typeof x === "string" && x.trim() && !isPlaceholderUrl(x))
     : [];
   const sourceDomains = extractDomains(sourceUrls).filter((d) => !isPlaceholderDomain(d));
-  const destinations = Array.isArray(json?.destinations) ? json.destinations : [];
-  const vancouverMentioned =
-    typeof json?.vancouverMentioned === "boolean"
-      ? json.vancouverMentioned
-      : JSON.stringify(destinations).toLowerCase().includes("vancouver");
+  const answer = String(json?.answer || "");
+  const destinations = normalizeDestinations(json?.destinations);
+  const inferred = inferVancouverSignals({ destinations, answer });
   return {
     provider,
     model,
@@ -315,9 +356,9 @@ function normalizeSampleResult({
     question,
     repeatIndex,
     at: new Date().toISOString(),
-    answer: String(json?.answer || ""),
-    vancouverMentioned,
-    vancouverRank: normalizeVancouverRank(json?.vancouverRank),
+    answer,
+    vancouverMentioned: inferred.vancouverMentioned,
+    vancouverRank: normalizeVancouverRank(inferred.vancouverRank),
     destinations,
     sourceUrls,
     sourceDomains,

@@ -47,3 +47,19 @@ npm run geo:migrate:firestore
 - Cloud Run Job `dv-geo-scheduled-run` executes the scheduled GEO batch runner.
 - Cloud Scheduler triggers the job on cron.
 - Cloud Run Job `dv-geo-schedule-watchdog` executes hourly recovery attempts if no completed daily batch exists.
+
+## Environments
+
+- Dev Hosting: `https://george-geo-dev.web.app` (rewrites to Cloud Run service `dmo-geo-dev`)
+- Prod Hosting: `https://george-geo.web.app` (rewrites to Cloud Run service `dmo-geo`)
+
+### Deploy Workflow
+
+1. Deploy backend to dev:
+   - `npm run deploy:run:dev`
+2. Deploy hosting to dev:
+   - `npm run deploy:hosting:dev`
+3. Validate on `https://george-geo-dev.web.app`
+4. Promote to prod when ready:
+   - `npm run deploy:run:prod`
+   - `npm run deploy:hosting:prod`
