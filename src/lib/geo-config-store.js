@@ -46,6 +46,14 @@ function normalizeStringList(value) {
   );
 }
 
+function normalizeCriterionDefinition(rawDefinition, rawDescription, fallbackDefinition, legacyDescription) {
+  const def = String(rawDefinition || "").trim();
+  const desc = String(rawDescription || "").trim();
+  if (def) return def;
+  if (desc && desc !== String(legacyDescription || "").trim()) return desc;
+  return String(fallbackDefinition || "").trim();
+}
+
 function slug(text, fallback = "category") {
   return (
     String(text || "")
@@ -85,18 +93,42 @@ export const DEFAULT_GEO_CONFIG = {
   qualityCriteria: {
     sentiment: {
       label: "Sentiment",
-      description: "Tone quality when Vancouver is mentioned.",
+      description: "How warm, compelling, and emotionally positive is the tone when Vancouver is mentioned?",
+      definition: "How warm, compelling, and emotionally positive is the tone when Vancouver is mentioned?",
+      scoreGuidance: {
+        "5": "Vancouver is mentioned and tone is very warm, vivid, and inviting. Vancouver is framed as inspiring, refreshing, or energizing.",
+        "4": "Vancouver is mentioned and tone is positive; Vancouver is recommended but framed more functionally or grouped with peers.",
+        "3": "Vancouver is mentioned and tone is neutral or factual; Vancouver is mentioned without emotional pull.",
+        "2": "Vancouver is mentioned, but described inaccurately, dismissively, or in a way that conflicts with brand values.",
+        "1": "Vancouver is not mentioned.",
+      },
       positiveKeywords: ["inspiring", "refreshing", "energizing", "vibrant", "stunning", "excellent", "must-visit"],
       negativeKeywords: ["overrated", "avoid", "boring", "unsafe", "not worth"],
     },
     specificity: {
       label: "Specificity",
-      description: "Presence of specific places/details in response.",
+      description: "Does the response reference real, specific Vancouver places, neighbourhoods, events, or experiences?",
+      definition: "Does the response reference real, specific Vancouver places, neighbourhoods, events, or experiences?",
+      scoreGuidance: {
+        "5": "Vancouver is mentioned and there are multiple specific and accurate Vancouver references.",
+        "4": "Vancouver is mentioned and at least one specific Vancouver place, experience, or neighbourhood is named.",
+        "3": "Vancouver is mentioned generally, without concrete detail.",
+        "2": "Vancouver is mentioned but information is inaccurate.",
+        "1": "Vancouver is not mentioned.",
+      },
       knownPlaceKeywords: ["stanley park", "queen elizabeth park", "granville island", "gastown", "yaletown", "kitsilano", "michelin", "capilano"],
     },
     brand_alignment: {
       label: "Brand Alignment",
-      description: "Alignment with strategic brand pillars.",
+      description: "How well does the response reflect Destination Vancouver's brand?",
+      definition: "How well does the response reflect Destination Vancouver's brand?",
+      scoreGuidance: {
+        "5": "Vancouver is mentioned and one or more Destination Vancouver brand pillars are clearly reflected.",
+        "4": "Vancouver is mentioned and brand themes are touched indirectly.",
+        "3": "Vancouver is mentioned, but brand pillars are not evident.",
+        "2": "Vancouver is mentioned but themes are misaligned with the brand.",
+        "1": "Vancouver is not mentioned.",
+      },
       pillarKeywords: ["wellness", "wellbeing", "outdoors", "nature", "culinary", "culture", "arts", "events", "neighbourhood", "fresh"],
     },
   },
@@ -151,7 +183,18 @@ export function normalizeGeoConfig(input) {
   const qualityCriteria = {
     sentiment: {
       label: String(qcRaw?.sentiment?.label || baseQc.sentiment.label),
-      description: String(qcRaw?.sentiment?.description || baseQc.sentiment.description),
+      description: normalizeCriterionDefinition(
+        qcRaw?.sentiment?.definition,
+        qcRaw?.sentiment?.description,
+        baseQc.sentiment.definition || baseQc.sentiment.description,
+        "Tone quality when Vancouver is mentioned."
+      ),
+      definition: normalizeCriterionDefinition(
+        qcRaw?.sentiment?.definition,
+        qcRaw?.sentiment?.description,
+        baseQc.sentiment.definition || baseQc.sentiment.description,
+        "Tone quality when Vancouver is mentioned."
+      ),
       positiveKeywords: parseKeywords(qcRaw?.sentiment?.positiveKeywords ?? baseQc.sentiment.positiveKeywords),
       negativeKeywords: parseKeywords(qcRaw?.sentiment?.negativeKeywords ?? baseQc.sentiment.negativeKeywords),
       scoreGuidance: normalizeScoreGuidance(qcRaw?.sentiment?.scoreGuidance, baseQc?.sentiment?.scoreGuidance),
@@ -159,13 +202,35 @@ export function normalizeGeoConfig(input) {
     },
     specificity: {
       label: String(qcRaw?.specificity?.label || baseQc.specificity.label),
-      description: String(qcRaw?.specificity?.description || baseQc.specificity.description),
+      description: normalizeCriterionDefinition(
+        qcRaw?.specificity?.definition,
+        qcRaw?.specificity?.description,
+        baseQc.specificity.definition || baseQc.specificity.description,
+        "Presence of specific places/details in response."
+      ),
+      definition: normalizeCriterionDefinition(
+        qcRaw?.specificity?.definition,
+        qcRaw?.specificity?.description,
+        baseQc.specificity.definition || baseQc.specificity.description,
+        "Presence of specific places/details in response."
+      ),
       knownPlaceKeywords: parseKeywords(qcRaw?.specificity?.knownPlaceKeywords ?? baseQc.specificity.knownPlaceKeywords),
       scoreGuidance: normalizeScoreGuidance(qcRaw?.specificity?.scoreGuidance, baseQc?.specificity?.scoreGuidance),
     },
     brand_alignment: {
       label: String(qcRaw?.brand_alignment?.label || baseQc.brand_alignment.label),
-      description: String(qcRaw?.brand_alignment?.description || baseQc.brand_alignment.description),
+      description: normalizeCriterionDefinition(
+        qcRaw?.brand_alignment?.definition,
+        qcRaw?.brand_alignment?.description,
+        baseQc.brand_alignment.definition || baseQc.brand_alignment.description,
+        "Alignment with strategic brand pillars."
+      ),
+      definition: normalizeCriterionDefinition(
+        qcRaw?.brand_alignment?.definition,
+        qcRaw?.brand_alignment?.description,
+        baseQc.brand_alignment.definition || baseQc.brand_alignment.description,
+        "Alignment with strategic brand pillars."
+      ),
       pillarKeywords: parseKeywords(qcRaw?.brand_alignment?.pillarKeywords ?? baseQc.brand_alignment.pillarKeywords),
       brandPillars: normalizeStringList(qcRaw?.brand_alignment?.brandPillars),
       scoreGuidance: normalizeScoreGuidance(qcRaw?.brand_alignment?.scoreGuidance, baseQc?.brand_alignment?.scoreGuidance),

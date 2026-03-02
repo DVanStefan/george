@@ -1589,20 +1589,51 @@ function geoExecutivePage({ orgHint = "" } = {}) {
             <h3 style="margin:0 0 8px;">Scoring Criteria</h3>
             <div class="option">
               <strong>Sentiment</strong>
-              <label class="muted" style="display:block; margin-top:6px;">Positive Keywords (comma/newline)</label>
-              <textarea id="geoSentimentPositive" style="width:100%;min-height:70px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;background:#fff;"></textarea>
-              <label class="muted" style="display:block; margin-top:6px;">Negative Keywords (comma/newline)</label>
-              <textarea id="geoSentimentNegative" style="width:100%;min-height:70px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;background:#fff;"></textarea>
+              <label class="muted" style="display:block; margin-top:6px;">Definition</label>
+              <textarea id="geoSentimentDefinition" style="width:100%;min-height:64px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;background:#fff;"></textarea>
+              <label class="muted" style="display:block; margin-top:6px;">Score Guidance</label>
+              <label class="muted" style="display:block; margin-top:4px;">5</label>
+              <textarea id="geoSentimentScore5" style="width:100%;min-height:50px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;background:#fff;"></textarea>
+              <label class="muted" style="display:block; margin-top:4px;">4</label>
+              <textarea id="geoSentimentScore4" style="width:100%;min-height:50px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;background:#fff;"></textarea>
+              <label class="muted" style="display:block; margin-top:4px;">3</label>
+              <textarea id="geoSentimentScore3" style="width:100%;min-height:50px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;background:#fff;"></textarea>
+              <label class="muted" style="display:block; margin-top:4px;">2</label>
+              <textarea id="geoSentimentScore2" style="width:100%;min-height:50px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;background:#fff;"></textarea>
+              <label class="muted" style="display:block; margin-top:4px;">1</label>
+              <textarea id="geoSentimentScore1" style="width:100%;min-height:50px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;background:#fff;"></textarea>
             </div>
             <div class="option">
               <strong>Specificity</strong>
-              <label class="muted" style="display:block; margin-top:6px;">Known Place Keywords (comma/newline)</label>
-              <textarea id="geoSpecificityKeywords" style="width:100%;min-height:70px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;background:#fff;"></textarea>
+              <label class="muted" style="display:block; margin-top:6px;">Definition</label>
+              <textarea id="geoSpecificityDefinition" style="width:100%;min-height:64px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;background:#fff;"></textarea>
+              <label class="muted" style="display:block; margin-top:6px;">Score Guidance</label>
+              <label class="muted" style="display:block; margin-top:4px;">5</label>
+              <textarea id="geoSpecificityScore5" style="width:100%;min-height:50px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;background:#fff;"></textarea>
+              <label class="muted" style="display:block; margin-top:4px;">4</label>
+              <textarea id="geoSpecificityScore4" style="width:100%;min-height:50px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;background:#fff;"></textarea>
+              <label class="muted" style="display:block; margin-top:4px;">3</label>
+              <textarea id="geoSpecificityScore3" style="width:100%;min-height:50px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;background:#fff;"></textarea>
+              <label class="muted" style="display:block; margin-top:4px;">2</label>
+              <textarea id="geoSpecificityScore2" style="width:100%;min-height:50px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;background:#fff;"></textarea>
+              <label class="muted" style="display:block; margin-top:4px;">1</label>
+              <textarea id="geoSpecificityScore1" style="width:100%;min-height:50px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;background:#fff;"></textarea>
             </div>
             <div class="option">
               <strong>Brand Alignment</strong>
-              <label class="muted" style="display:block; margin-top:6px;">Pillar Keywords (comma/newline)</label>
-              <textarea id="geoBrandKeywords" style="width:100%;min-height:70px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;background:#fff;"></textarea>
+              <label class="muted" style="display:block; margin-top:6px;">Definition</label>
+              <textarea id="geoBrandDefinition" style="width:100%;min-height:64px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;background:#fff;"></textarea>
+              <label class="muted" style="display:block; margin-top:6px;">Score Guidance</label>
+              <label class="muted" style="display:block; margin-top:4px;">5</label>
+              <textarea id="geoBrandScore5" style="width:100%;min-height:50px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;background:#fff;"></textarea>
+              <label class="muted" style="display:block; margin-top:4px;">4</label>
+              <textarea id="geoBrandScore4" style="width:100%;min-height:50px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;background:#fff;"></textarea>
+              <label class="muted" style="display:block; margin-top:4px;">3</label>
+              <textarea id="geoBrandScore3" style="width:100%;min-height:50px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;background:#fff;"></textarea>
+              <label class="muted" style="display:block; margin-top:4px;">2</label>
+              <textarea id="geoBrandScore2" style="width:100%;min-height:50px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;background:#fff;"></textarea>
+              <label class="muted" style="display:block; margin-top:4px;">1</label>
+              <textarea id="geoBrandScore1" style="width:100%;min-height:50px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;background:#fff;"></textarea>
             </div>
           </div>
           <div class="card">
@@ -2033,14 +2064,23 @@ function geoExecutivePage({ orgHint = "" } = {}) {
       const s = qc.sentiment || {};
       const sp = qc.specificity || {};
       const b = qc.brand_alignment || {};
-      const a = document.getElementById("geoSentimentPositive");
-      const c = document.getElementById("geoSentimentNegative");
-      const d = document.getElementById("geoSpecificityKeywords");
-      const e = document.getElementById("geoBrandKeywords");
-      if (a) a.value = joinKeywords(s.positiveKeywords);
-      if (c) c.value = joinKeywords(s.negativeKeywords);
-      if (d) d.value = joinKeywords(sp.knownPlaceKeywords);
-      if (e) e.value = joinKeywords(b.pillarKeywords);
+      const setValue = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.value = String(value || "");
+      };
+      const setGuidance = (prefix, src) => {
+        setValue(prefix + "5", src?.["5"]);
+        setValue(prefix + "4", src?.["4"]);
+        setValue(prefix + "3", src?.["3"]);
+        setValue(prefix + "2", src?.["2"]);
+        setValue(prefix + "1", src?.["1"]);
+      };
+      setValue("geoSentimentDefinition", s.definition || s.description || "");
+      setValue("geoSpecificityDefinition", sp.definition || sp.description || "");
+      setValue("geoBrandDefinition", b.definition || b.description || "");
+      setGuidance("geoSentimentScore", s.scoreGuidance || {});
+      setGuidance("geoSpecificityScore", sp.scoreGuidance || {});
+      setGuidance("geoBrandScore", b.scoreGuidance || {});
     }
     function renderGeoConfigEditor() {
       renderGeoCriteria();
@@ -2068,6 +2108,21 @@ function geoExecutivePage({ orgHint = "" } = {}) {
         categoryId: String(row.querySelector("[data-qcategory]")?.value || ""),
         funnel: String(row.querySelector("[data-qfunnel]")?.value || "unknown"),
       })).filter((q) => q.prompt);
+      const read = (id) => String(document.getElementById(id)?.value || "").trim();
+      const guidance = (prefix) => ({
+        "5": read(prefix + "5"),
+        "4": read(prefix + "4"),
+        "3": read(prefix + "3"),
+        "2": read(prefix + "2"),
+        "1": read(prefix + "1"),
+      });
+      const priorQc = adminGeoConfig?.qualityCriteria || {};
+      const priorSent = priorQc.sentiment || {};
+      const priorSpec = priorQc.specificity || {};
+      const priorBrand = priorQc.brand_alignment || {};
+      const sentimentDefinition = read("geoSentimentDefinition");
+      const specificityDefinition = read("geoSpecificityDefinition");
+      const brandDefinition = read("geoBrandDefinition");
       return {
         version: 1,
         categories,
@@ -2075,19 +2130,26 @@ function geoExecutivePage({ orgHint = "" } = {}) {
         qualityCriteria: {
           sentiment: {
             label: "Sentiment",
-            description: "Tone quality when Vancouver is mentioned.",
-            positiveKeywords: splitKeywordText(document.getElementById("geoSentimentPositive")?.value || ""),
-            negativeKeywords: splitKeywordText(document.getElementById("geoSentimentNegative")?.value || ""),
+            description: sentimentDefinition || "How warm, compelling, and emotionally positive is the tone when Vancouver is mentioned?",
+            definition: sentimentDefinition || "How warm, compelling, and emotionally positive is the tone when Vancouver is mentioned?",
+            scoreGuidance: guidance("geoSentimentScore"),
+            positiveKeywords: Array.isArray(priorSent.positiveKeywords) ? priorSent.positiveKeywords : [],
+            negativeKeywords: Array.isArray(priorSent.negativeKeywords) ? priorSent.negativeKeywords : [],
           },
           specificity: {
             label: "Specificity",
-            description: "Presence of specific places/details in response.",
-            knownPlaceKeywords: splitKeywordText(document.getElementById("geoSpecificityKeywords")?.value || ""),
+            description: specificityDefinition || "Does the response reference real, specific Vancouver places, neighbourhoods, events, or experiences?",
+            definition: specificityDefinition || "Does the response reference real, specific Vancouver places, neighbourhoods, events, or experiences?",
+            scoreGuidance: guidance("geoSpecificityScore"),
+            knownPlaceKeywords: Array.isArray(priorSpec.knownPlaceKeywords) ? priorSpec.knownPlaceKeywords : [],
           },
           brand_alignment: {
             label: "Brand Alignment",
-            description: "Alignment with strategic brand pillars.",
-            pillarKeywords: splitKeywordText(document.getElementById("geoBrandKeywords")?.value || ""),
+            description: brandDefinition || "How well does the response reflect Destination Vancouver's brand?",
+            definition: brandDefinition || "How well does the response reflect Destination Vancouver's brand?",
+            scoreGuidance: guidance("geoBrandScore"),
+            pillarKeywords: Array.isArray(priorBrand.pillarKeywords) ? priorBrand.pillarKeywords : [],
+            brandPillars: Array.isArray(priorBrand.brandPillars) ? priorBrand.brandPillars : [],
           },
         },
       };
