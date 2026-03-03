@@ -161,17 +161,24 @@ function isPlaceholderDomain(domain) {
   return (
     d === "example.com" ||
     d.endsWith(".example.com") ||
+    d === "publisher-domain.com" ||
+    d.endsWith(".publisher-domain.com") ||
+    d.includes("publisher-domain") ||
     d === "localhost" ||
     d.endsWith(".local")
   );
 }
 
-function isPlaceholderUrl(url) {
+function parseSourceUrl(url) {
   try {
-    const u = new URL(String(url || ""));
-    return isPlaceholderDomain(u.hostname.toLowerCase().replace(/^www\./, ""));
+    const u = new URL(String(url || "").trim());
+    const protocol = String(u.protocol || "").toLowerCase();
+    if (protocol !== "http:" && protocol !== "https:") return null;
+    const host = u.hostname.toLowerCase().replace(/^www\./, "");
+    if (!host || isPlaceholderDomain(host)) return null;
+    return u.toString();
   } catch {
-    return false;
+    return null;
   }
 }
 
@@ -209,7 +216,7 @@ Return valid JSON only in this exact shape:
 {
   "answer": "string",
   "destinations": [{"name": "string", "rank": 1}],
-  "sourceUrls": ["https://publisher-domain.com/article"]
+  "sourceUrls": ["https://real-publisher-domain.tld/article-path"]
 }
 
 Rules:
@@ -339,7 +346,10 @@ function normalizeSampleResult({
   error,
 }) {
   const sourceUrls = Array.isArray(json?.sourceUrls)
-    ? json.sourceUrls.filter((x) => typeof x === "string" && x.trim() && !isPlaceholderUrl(x))
+    ? [...new Set(json.sourceUrls
+      .filter((x) => typeof x === "string" && x.trim())
+      .map((x) => parseSourceUrl(x))
+      .filter(Boolean))]
     : [];
   const sourceDomains = extractDomains(sourceUrls).filter((d) => !isPlaceholderDomain(d));
   const answer = String(json?.answer || "");

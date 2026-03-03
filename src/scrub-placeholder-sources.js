@@ -7,23 +7,32 @@ function isPlaceholderDomain(domain) {
   return (
     d === "example.com" ||
     d.endsWith(".example.com") ||
+    d === "publisher-domain.com" ||
+    d.endsWith(".publisher-domain.com") ||
+    d.includes("publisher-domain") ||
     d === "localhost" ||
     d.endsWith(".local")
   );
 }
 
-function isPlaceholderUrl(url) {
+function parseSourceUrl(url) {
   try {
-    const u = new URL(String(url || ""));
-    return isPlaceholderDomain(u.hostname.toLowerCase().replace(/^www\./, ""));
+    const u = new URL(String(url || "").trim());
+    const protocol = String(u.protocol || "").toLowerCase();
+    if (protocol !== "http:" && protocol !== "https:") return null;
+    const host = u.hostname.toLowerCase().replace(/^www\./, "");
+    if (!host || isPlaceholderDomain(host)) return null;
+    return u.toString();
   } catch {
-    return false;
+    return null;
   }
 }
 
 function cleanSample(sample) {
-  const sourceUrls = (Array.isArray(sample?.sourceUrls) ? sample.sourceUrls : [])
-    .filter((u) => typeof u === "string" && u.trim() && !isPlaceholderUrl(u));
+  const sourceUrls = [...new Set((Array.isArray(sample?.sourceUrls) ? sample.sourceUrls : [])
+    .filter((u) => typeof u === "string" && u.trim())
+    .map((u) => parseSourceUrl(u))
+    .filter(Boolean))];
   const sourceDomains = (Array.isArray(sample?.sourceDomains) ? sample.sourceDomains : [])
     .filter((d) => !isPlaceholderDomain(d));
   return {

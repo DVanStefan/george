@@ -1369,6 +1369,12 @@ function geoExecutivePage({ orgHint = "" } = {}) {
         <div id="drillSourcesVancouverTop" class="bars"></div>
       </div>
       <div class="card" style="margin-top:12px;">
+        <h3 style="margin:0 0 8px;">Vancouver Source Performance (High-Funnel Lists)</h3>
+        <div class="muted">Shows where Vancouver is included or top-ranked in list-style high-funnel answers, by source domain.</div>
+        <div id="vancouverSourcePerfMeta" class="muted" style="margin-top:8px;"></div>
+        <div id="vancouverSourcePerfTable" style="margin-top:8px;"></div>
+      </div>
+      <div class="card" style="margin-top:12px;">
         <div class="filters" style="margin-top:0;">
           <strong>Question Source Variability</strong>
           <button id="trendRangeMonth" class="chip active">Month</button>
@@ -1501,6 +1507,7 @@ function geoExecutivePage({ orgHint = "" } = {}) {
       <div class="tabs" style="margin-top:0;">
         <button id="adminSectionUsersBtn" class="tab active">Manage Users</button>
         <button id="adminSectionGeoBtn" class="tab">Manage GEO Search</button>
+        <button id="adminSectionEvalBtn" class="tab">Evaluation Review</button>
         <button id="adminSectionAppearanceBtn" class="tab">Appearance</button>
       </div>
 
@@ -1729,6 +1736,43 @@ function geoExecutivePage({ orgHint = "" } = {}) {
           </div>
         </div>
       </div>
+
+      <div id="adminEvalSection" class="hidden">
+        <div class="card">
+          <h3 style="margin:0 0 8px;">Evaluation Review</h3>
+          <div class="muted" style="margin-bottom:8px;">Audit scored responses and inspect why each score was assigned.</div>
+          <div id="adminEvalStatus" class="status">Ready.</div>
+        </div>
+        <div class="card" style="margin-top:12px;">
+          <div class="filters" style="margin-top:0;">
+            <button id="evalRangeDay" class="chip active" type="button">Day</button>
+            <button id="evalRangeWeek" class="chip" type="button">Week</button>
+            <button id="evalRangeMonth" class="chip" type="button">Month</button>
+            <button id="evalRangeAll" class="chip" type="button">All</button>
+            <button id="evalRangeCustom" class="chip" type="button">Custom</button>
+            <input id="evalStart" type="date" />
+            <input id="evalEnd" type="date" />
+            <button id="evalApplyRange" class="chip" type="button">Apply</button>
+          </div>
+          <div class="filters">
+            <label class="muted">Question
+              <select id="evalQuestionFilter"></select>
+            </label>
+            <label class="muted">Market
+              <select id="evalMarketFilter"></select>
+            </label>
+            <label class="muted">Model
+              <select id="evalModelFilter"></select>
+            </label>
+          </div>
+          <div id="adminEvalMeta" class="muted" style="margin-top:8px;"></div>
+          <div id="adminEvalTable" style="margin-top:8px;"></div>
+        </div>
+        <div class="card" style="margin-top:12px;">
+          <h3 style="margin:0 0 8px;">Evaluation Details</h3>
+          <div id="adminEvalDetails" class="muted">Select a row in the table above.</div>
+        </div>
+      </div>
     </div>
     <div class="siteFooter">
       <a id="aboutOpenLink" class="footerLink" href="#">About This Site</a>
@@ -1774,6 +1818,9 @@ function geoExecutivePage({ orgHint = "" } = {}) {
     let adminRegistrationRequests = [];
     let adminCapability = false;
     let adminSection = "users";
+    let evalRange = "day";
+    let evalRows = [];
+    let evalSelectedId = "";
     let geoConfig = JSON.parse(JSON.stringify(DEFAULT_GEO_CONFIG));
     let adminGeoConfig = JSON.parse(JSON.stringify(DEFAULT_GEO_CONFIG));
     let appearanceConfig = JSON.parse(JSON.stringify(DEFAULT_APPEARANCE));
@@ -1978,24 +2025,34 @@ function geoExecutivePage({ orgHint = "" } = {}) {
       el.textContent = text;
       el.className = "status" + (err ? " err" : "");
     }
+    function setEvalStatus(text, err) {
+      const el = document.getElementById("adminEvalStatus");
+      if (!el) return;
+      el.textContent = text;
+      el.className = "status" + (err ? " err" : "");
+    }
     function setAppearanceMeta(text) {
       const el = document.getElementById("adminAppearanceMeta");
       if (!el) return;
       el.textContent = text || "Current palette is active.";
     }
     function setAdminSection(section) {
-      adminSection = section === "geo" ? "geo" : (section === "appearance" ? "appearance" : "users");
+      adminSection = section === "geo" ? "geo" : (section === "appearance" ? "appearance" : (section === "evaluation" ? "evaluation" : "users"));
       const usersBtn = document.getElementById("adminSectionUsersBtn");
       const geoBtn = document.getElementById("adminSectionGeoBtn");
+      const evalBtn = document.getElementById("adminSectionEvalBtn");
       const appearanceBtn = document.getElementById("adminSectionAppearanceBtn");
       const usersPane = document.getElementById("adminUsersSection");
       const geoPane = document.getElementById("adminGeoSection");
+      const evalPane = document.getElementById("adminEvalSection");
       const appearancePane = document.getElementById("adminAppearanceSection");
       if (usersBtn) usersBtn.className = adminSection === "users" ? "tab active" : "tab";
       if (geoBtn) geoBtn.className = adminSection === "geo" ? "tab active" : "tab";
+      if (evalBtn) evalBtn.className = adminSection === "evaluation" ? "tab active" : "tab";
       if (appearanceBtn) appearanceBtn.className = adminSection === "appearance" ? "tab active" : "tab";
       if (usersPane) usersPane.className = adminSection === "users" ? "" : "hidden";
       if (geoPane) geoPane.className = adminSection === "geo" ? "" : "hidden";
+      if (evalPane) evalPane.className = adminSection === "evaluation" ? "" : "hidden";
       if (appearancePane) appearancePane.className = adminSection === "appearance" ? "" : "hidden";
     }
     function splitKeywordText(value) {
@@ -2789,8 +2846,116 @@ function geoExecutivePage({ orgHint = "" } = {}) {
         .sort((a, b) => b.count - a.count)
         .slice(0, 10);
     }
-    function sentimentScore(sample) {
-      if (!sample.vancouverMentioned) return 1;
+    function vancouverRankInDestinations(sample) {
+      const list = Array.isArray(sample?.destinations) ? sample.destinations : [];
+      let best = null;
+      for (let i = 0; i < list.length; i += 1) {
+        const d = list[i] || {};
+        if (!/\bvancouver\b/i.test(String(d.name || ""))) continue;
+        const rankRaw = Number(d.rank);
+        const rank = Number.isFinite(rankRaw) && rankRaw > 0 ? Math.floor(rankRaw) : (i + 1);
+        best = best == null ? rank : Math.min(best, rank);
+      }
+      return best;
+    }
+    function topDestinationName(sample) {
+      const list = Array.isArray(sample?.destinations) ? sample.destinations : [];
+      if (!list.length) return "";
+      const ranked = list.map((d, i) => {
+        const rankRaw = Number(d?.rank);
+        const rank = Number.isFinite(rankRaw) && rankRaw > 0 ? Math.floor(rankRaw) : (i + 1);
+        return { name: String(d?.name || "").trim(), rank };
+      }).filter((x) => x.name);
+      if (!ranked.length) return "";
+      ranked.sort((a, b) => a.rank - b.rank);
+      return String(ranked[0].name || "");
+    }
+    function renderVancouverSourcePerformance(samples) {
+      const tableRoot = document.getElementById("vancouverSourcePerfTable");
+      const meta = document.getElementById("vancouverSourcePerfMeta");
+      if (!tableRoot || !meta) return;
+      const eligible = (samples || []).filter((s) => !s.error)
+        .filter((s) => String(s.funnel || "").toLowerCase() === "high")
+        .filter((s) => Array.isArray(s.destinations) && s.destinations.length >= 2);
+      if (!eligible.length) {
+        meta.textContent = "No high-funnel list responses in current slice/range.";
+        tableRoot.innerHTML = "<div class='muted'>No data.</div>";
+        return;
+      }
+      const bySource = new Map();
+      for (const s of eligible) {
+        const sourceDomains = [...new Set(Array.isArray(s.sourceDomains) ? s.sourceDomains : [])];
+        const vanRank = vancouverRankInDestinations(s);
+        const topName = topDestinationName(s);
+        for (const domain of sourceDomains) {
+          const cur = bySource.get(domain) || {
+            domain,
+            sampleCount: 0,
+            vancouverIncluded: 0,
+            vancouverTop: 0,
+            rankSum: 0,
+            rankCount: 0,
+            competitorTop: new Map(),
+          };
+          cur.sampleCount += 1;
+          if (vanRank != null) {
+            cur.vancouverIncluded += 1;
+            cur.rankSum += vanRank;
+            cur.rankCount += 1;
+            if (vanRank === 1) cur.vancouverTop += 1;
+          }
+          if (topName && !/\bvancouver\b/i.test(topName)) {
+            cur.competitorTop.set(topName, (cur.competitorTop.get(topName) || 0) + 1);
+          }
+          bySource.set(domain, cur);
+        }
+      }
+      const rows = [...bySource.values()].map((r) => {
+        const includedRate = r.sampleCount ? (100 * r.vancouverIncluded / r.sampleCount) : 0;
+        const topRate = r.sampleCount ? (100 * r.vancouverTop / r.sampleCount) : 0;
+        const avgRank = r.rankCount ? (r.rankSum / r.rankCount) : 0;
+        const competitor = [...r.competitorTop.entries()].sort((a, b) => b[1] - a[1])[0];
+        return {
+          domain: r.domain,
+          sampleCount: r.sampleCount,
+          includedRate,
+          topRate,
+          avgRank: r.rankCount ? avgRank : null,
+          competitor: competitor ? (competitor[0] + " (" + competitor[1] + ")") : "-",
+        };
+      }).sort((a, b) => {
+        if (b.topRate !== a.topRate) return b.topRate - a.topRate;
+        if (b.includedRate !== a.includedRate) return b.includedRate - a.includedRate;
+        return b.sampleCount - a.sampleCount;
+      });
+      meta.textContent =
+        "Eligible responses: " + String(eligible.length) +
+        " | Sources: " + String(rows.length) +
+        " | Scope: high-funnel list answers only";
+      tableRoot.innerHTML =
+        "<table><thead><tr>" +
+          "<th>Source</th><th>Samples</th><th>Vancouver Included</th><th>Vancouver Top</th><th>Avg Vancouver Rank</th><th>Top Competitor</th>" +
+        "</tr></thead><tbody>" +
+        rows.map((r) =>
+          "<tr>" +
+            "<td>" + esc(r.domain) + "</td>" +
+            "<td>" + esc(String(r.sampleCount)) + "</td>" +
+            "<td>" + esc(r.includedRate.toFixed(1) + "%") + "</td>" +
+            "<td>" + esc(r.topRate.toFixed(1) + "%") + "</td>" +
+            "<td>" + esc(r.avgRank == null ? "-" : r.avgRank.toFixed(2)) + "</td>" +
+            "<td>" + esc(r.competitor) + "</td>" +
+          "</tr>"
+        ).join("") +
+        "</tbody></table>";
+    }
+    function matchedKeywords(text, keywords) {
+      const value = String(text || "").toLowerCase();
+      return (Array.isArray(keywords) ? keywords : [])
+        .map((k) => String(k || "").trim().toLowerCase())
+        .filter((k) => k && value.includes(k));
+    }
+    function sentimentScoreDetail(sample) {
+      if (!sample.vancouverMentioned) return { score: 1, reason: "Vancouver not mentioned.", hits: [], rule: "no_mention" };
       const t = String(sample.answer || "").toLowerCase();
       const qc = sample?.__qualityCriteria?.sentiment || geoConfig?.qualityCriteria?.sentiment || {};
       const positive = Array.isArray(qc.positiveKeywords) && qc.positiveKeywords.length
@@ -2799,36 +2964,54 @@ function geoExecutivePage({ orgHint = "" } = {}) {
       const negative = Array.isArray(qc.negativeKeywords) && qc.negativeKeywords.length
         ? qc.negativeKeywords
         : DEFAULT_GEO_CONFIG.qualityCriteria.sentiment.negativeKeywords;
-      const p = positive.filter((k) => t.includes(k)).length;
-      const n = negative.filter((k) => t.includes(k)).length;
-      if (n > 0) return 2;
-      if (p >= 2) return 5;
-      if (p === 1) return 4;
-      return 3;
+      const posHits = matchedKeywords(t, positive);
+      const negHits = matchedKeywords(t, negative);
+      if (negHits.length > 0) {
+        return { score: 2, reason: "Negative sentiment signals matched.", hits: negHits, rule: "negative_keywords" };
+      }
+      if (posHits.length >= 2) {
+        return { score: 5, reason: "Multiple positive sentiment signals matched.", hits: posHits, rule: "positive_2plus" };
+      }
+      if (posHits.length === 1) {
+        return { score: 4, reason: "One positive sentiment signal matched.", hits: posHits, rule: "positive_1" };
+      }
+      return { score: 3, reason: "Vancouver mentioned with neutral/no specific sentiment signals.", hits: [], rule: "neutral_default" };
     }
-    function specificityScore(sample) {
+    function sentimentScore(sample) {
       if (!sample.vancouverMentioned) return 1;
+      return Number(sentimentScoreDetail(sample).score || 3);
+    }
+    function specificityScoreDetail(sample) {
+      if (!sample.vancouverMentioned) return { score: 1, reason: "Vancouver not mentioned.", hits: [], rule: "no_mention" };
       const t = String(sample.answer || "").toLowerCase();
       const qc = sample?.__qualityCriteria?.specificity || geoConfig?.qualityCriteria?.specificity || {};
       const known = Array.isArray(qc.knownPlaceKeywords) && qc.knownPlaceKeywords.length
         ? qc.knownPlaceKeywords
         : DEFAULT_GEO_CONFIG.qualityCriteria.specificity.knownPlaceKeywords;
-      const hits = known.filter((k) => t.includes(k)).length;
-      if (hits >= 2) return 5;
-      if (hits === 1) return 4;
-      return 3;
+      const hits = matchedKeywords(t, known);
+      if (hits.length >= 2) return { score: 5, reason: "Multiple specific Vancouver references matched.", hits, rule: "specific_2plus" };
+      if (hits.length === 1) return { score: 4, reason: "One specific Vancouver reference matched.", hits, rule: "specific_1" };
+      return { score: 3, reason: "Vancouver mentioned without specific place/experience detail.", hits: [], rule: "specific_none" };
     }
-    function brandAlignmentScore(sample) {
+    function specificityScore(sample) {
       if (!sample.vancouverMentioned) return 1;
+      return Number(specificityScoreDetail(sample).score || 3);
+    }
+    function brandAlignmentScoreDetail(sample) {
+      if (!sample.vancouverMentioned) return { score: 1, reason: "Vancouver not mentioned.", hits: [], rule: "no_mention" };
       const t = String(sample.answer || "").toLowerCase();
       const qc = sample?.__qualityCriteria?.brand_alignment || geoConfig?.qualityCriteria?.brand_alignment || {};
       const pillars = Array.isArray(qc.pillarKeywords) && qc.pillarKeywords.length
         ? qc.pillarKeywords
         : DEFAULT_GEO_CONFIG.qualityCriteria.brand_alignment.pillarKeywords;
-      const hits = pillars.filter((k) => t.includes(k)).length;
-      if (hits >= 2) return 5;
-      if (hits === 1) return 4;
-      return 3;
+      const hits = matchedKeywords(t, pillars);
+      if (hits.length >= 2) return { score: 5, reason: "Multiple brand-pillar signals matched.", hits, rule: "pillar_2plus" };
+      if (hits.length === 1) return { score: 4, reason: "One brand-pillar signal matched.", hits, rule: "pillar_1" };
+      return { score: 3, reason: "Vancouver mentioned with limited explicit pillar cues.", hits: [], rule: "pillar_none" };
+    }
+    function brandAlignmentScore(sample) {
+      if (!sample.vancouverMentioned) return 1;
+      return Number(brandAlignmentScoreDetail(sample).score || 3);
     }
     function qualityScores(samples) {
       const all = (samples || []).filter((s) => !s.error);
@@ -3319,8 +3502,154 @@ function geoExecutivePage({ orgHint = "" } = {}) {
           d?.config?.geoConfigSnapshot?.qualityCriteria ||
           geoConfig?.qualityCriteria ||
           DEFAULT_GEO_CONFIG.qualityCriteria;
-        return (d.samples || []).map((s) => ({ ...s, __qualityCriteria: qc }));
+        const cfgVersion = String(
+          d?.geoConfigVersionId ||
+          d?.config?.geoConfigVersionId ||
+          d?.configVersionId ||
+          "unversioned"
+        );
+        const runAt = String(d?.createdAt || "");
+        const batchId = String(d?.batchId || "");
+        return (d.samples || []).map((s, idx) => ({
+          ...s,
+          __qualityCriteria: qc,
+          __configVersion: cfgVersion,
+          __runAt: runAt,
+          __batchId: batchId,
+          __sampleKey: batchId + ":" + String(idx),
+        }));
       });
+    }
+    function setEvalRange(next) {
+      evalRange = ["day", "week", "month", "all", "custom"].includes(String(next || "")) ? String(next) : "day";
+      const map = {
+        day: "evalRangeDay",
+        week: "evalRangeWeek",
+        month: "evalRangeMonth",
+        all: "evalRangeAll",
+        custom: "evalRangeCustom",
+      };
+      Object.entries(map).forEach(([key, id]) => {
+        const btn = document.getElementById(id);
+        if (btn) btn.className = "chip" + (evalRange === key ? " active" : "");
+      });
+    }
+    function inEvalRange(iso) {
+      const start = String(document.getElementById("evalStart")?.value || "");
+      const end = String(document.getElementById("evalEnd")?.value || "");
+      const mapped = evalRange === "day" ? "today" : (evalRange === "week" ? "week" : (evalRange === "month" ? "month" : (evalRange === "all" ? "all" : "custom")));
+      return inRange(iso, mapped, start, end);
+    }
+    function sampleModelLabel(s) {
+      return String(s.provider || s.model || s.agent || "unknown");
+    }
+    function scoreSummaryForSample(s) {
+      const sentiment = sentimentScoreDetail(s);
+      const specificity = specificityScoreDetail(s);
+      const brand = brandAlignmentScoreDetail(s);
+      const mentionRate = s.vancouverMentioned ? 1 : 0;
+      const avgCriteria = (Number(sentiment.score) + Number(specificity.score) + Number(brand.score)) / 3;
+      const totalContentQuality = Math.round(mentionRate * avgCriteria * 100) / 100;
+      return { sentiment, specificity, brand, mentionRate, totalContentQuality };
+    }
+    function renderEvalDetails() {
+      const root = document.getElementById("adminEvalDetails");
+      if (!root) return;
+      const row = (evalRows || []).find((r) => r.id === evalSelectedId);
+      if (!row) {
+        root.className = "muted";
+        root.textContent = "Select a row in the table above.";
+        return;
+      }
+      const s = row.sample;
+      const summary = row.summary;
+      const criterion = (title, detail) =>
+        "<div class='option'>" +
+          "<strong>" + esc(title) + " (" + esc(String(detail.score)) + "/5)</strong>" +
+          "<div class='muted' style='margin-top:6px;'>" + esc(detail.reason || "") + "</div>" +
+          "<div class='muted' style='margin-top:4px;'>Rule: " + esc(detail.rule || "n/a") + "</div>" +
+          "<div class='muted' style='margin-top:4px;'>Hits: " + esc((detail.hits || []).join(", ") || "none") + "</div>" +
+        "</div>";
+      root.className = "";
+      root.innerHTML =
+        "<div class='muted'>Question: " + esc(String(s.question || "unknown")) + "</div>" +
+        "<div class='muted'>Run: " + esc(formatZonedDateTime(s.__runAt || s.at || "")) + " | Config: " + esc(String(s.__configVersion || "unversioned")) + "</div>" +
+        "<div class='muted'>Market: " + esc(String(s.market || "unknown")) + " | Model: " + esc(sampleModelLabel(s)) + "</div>" +
+        "<div class='option' style='margin-top:8px;'><strong>Prompt</strong><div style='margin-top:6px; white-space:pre-wrap;'>" + esc(String(s.question || "")) + "</div></div>" +
+        "<div class='option' style='margin-top:8px;'><strong>Response</strong><div style='margin-top:6px; white-space:pre-wrap;'>" + esc(String(s.answer || "")) + "</div></div>" +
+        "<div class='option' style='margin-top:8px;'><strong>Computed</strong><div class='muted' style='margin-top:6px;'>Mentioned Vancouver: " + esc(s.vancouverMentioned ? "Yes" : "No") + " | Total Content Quality: " + esc(summary.totalContentQuality.toFixed(2)) + "</div></div>" +
+        criterion("Sentiment", summary.sentiment) +
+        criterion("Specificity", summary.specificity) +
+        criterion("Brand Alignment", summary.brand);
+    }
+    async function renderEvaluationReview() {
+      const table = document.getElementById("adminEvalTable");
+      const meta = document.getElementById("adminEvalMeta");
+      if (!table || !meta) return;
+      setEvalStatus("Loading samples...");
+      const all = await getAllSamples();
+      const questionSel = document.getElementById("evalQuestionFilter");
+      const marketSel = document.getElementById("evalMarketFilter");
+      const modelSel = document.getElementById("evalModelFilter");
+
+      const questionVals = ["All", ...new Set(all.map((s) => String(s.question || "unknown")))].filter(Boolean);
+      const marketVals = ["All", ...new Set(all.map((s) => String(s.market || "unknown")))].filter(Boolean);
+      const modelVals = ["All", ...new Set(all.map((s) => sampleModelLabel(s)))].filter(Boolean);
+
+      const selectedQ = String(questionSel?.value || "All");
+      const selectedM = String(marketSel?.value || "All");
+      const selectedModel = String(modelSel?.value || "All");
+
+      if (questionSel) questionSel.innerHTML = questionVals.map((v) => "<option value='" + esc(v) + "'" + (selectedQ === v ? " selected" : "") + ">" + esc(v) + "</option>").join("");
+      if (marketSel) marketSel.innerHTML = marketVals.map((v) => "<option value='" + esc(v) + "'" + (selectedM === v ? " selected" : "") + ">" + esc(v) + "</option>").join("");
+      if (modelSel) modelSel.innerHTML = modelVals.map((v) => "<option value='" + esc(v) + "'" + (selectedModel === v ? " selected" : "") + ">" + esc(v) + "</option>").join("");
+
+      const filtered = all
+        .filter((s) => inEvalRange(String(s.at || s.__runAt || "")))
+        .filter((s) => selectedQ === "All" ? true : String(s.question || "unknown") === selectedQ)
+        .filter((s) => selectedM === "All" ? true : String(s.market || "unknown") === selectedM)
+        .filter((s) => selectedModel === "All" ? true : sampleModelLabel(s) === selectedModel)
+        .sort((a, b) => String(b.at || b.__runAt || "").localeCompare(String(a.at || a.__runAt || "")));
+
+      evalRows = filtered.map((s) => ({
+        id: String(s.__sampleKey || Math.random()),
+        sample: s,
+        summary: scoreSummaryForSample(s),
+      }));
+      if (evalSelectedId && !evalRows.some((r) => r.id === evalSelectedId)) evalSelectedId = "";
+      if (!evalSelectedId && evalRows.length) evalSelectedId = evalRows[0].id;
+
+      meta.textContent = "Rows: " + String(evalRows.length);
+      if (!evalRows.length) {
+        table.innerHTML = "<div class='muted'>No scored samples for selected filters.</div>";
+        renderEvalDetails();
+        setEvalStatus("No rows in current filter.");
+        return;
+      }
+      table.innerHTML =
+        "<table><thead><tr>" +
+          "<th>Date/time</th><th>Question</th><th>Market</th><th>Model</th><th>Mention</th><th>Sent</th><th>Spec</th><th>Brand</th><th>Content Q</th><th>Config</th><th>View</th>" +
+        "</tr></thead><tbody>" +
+        evalRows.map((r) => {
+          const s = r.sample;
+          const selected = r.id === evalSelectedId ? " style='background:#f3fbf9;'" : "";
+          return "<tr data-eval-id='" + esc(r.id) + "'" + selected + ">" +
+            "<td>" + esc(formatZonedDateTime(s.at || s.__runAt || "")) + "</td>" +
+            "<td>" + esc(String(s.question || "unknown")) + "</td>" +
+            "<td>" + esc(String(s.market || "unknown")) + "</td>" +
+            "<td>" + esc(sampleModelLabel(s)) + "</td>" +
+            "<td>" + esc(s.vancouverMentioned ? "Yes" : "No") + "</td>" +
+            "<td>" + esc(String(r.summary.sentiment.score)) + "</td>" +
+            "<td>" + esc(String(r.summary.specificity.score)) + "</td>" +
+            "<td>" + esc(String(r.summary.brand.score)) + "</td>" +
+            "<td>" + esc(r.summary.totalContentQuality.toFixed(2)) + "</td>" +
+            "<td>" + esc(String(s.__configVersion || "unversioned")) + "</td>" +
+            "<td><button class='chip' type='button' data-eval-view>View Details</button></td>" +
+          "</tr>";
+        }).join("") +
+        "</tbody></table>";
+      renderEvalDetails();
+      setEvalStatus("Loaded " + String(evalRows.length) + " scored samples.");
     }
     async function renderQuestionTrend() {
       const meta = document.getElementById("trendMeta");
@@ -3502,6 +3831,7 @@ function geoExecutivePage({ orgHint = "" } = {}) {
       renderBars("drillSourcesAll", sourceCounts(filtered, "all"), "domain", "count", "");
       renderBars("drillSourcesVancouver", sourceCounts(filtered, "vancouver"), "domain", "count", "");
       renderBars("drillSourcesVancouverTop", sourceCounts(filtered, "vancouver_top"), "domain", "count", "");
+      renderVancouverSourcePerformance(filtered);
       await renderQuestionTrend();
     }
     async function renderQuality(samples, scopedRuns) {
@@ -3617,6 +3947,10 @@ function geoExecutivePage({ orgHint = "" } = {}) {
       setAdminSection("geo");
       await loadGeoConfigForAdmin();
     };
+    document.getElementById("adminSectionEvalBtn").onclick = async () => {
+      setAdminSection("evaluation");
+      await renderEvaluationReview();
+    };
     document.getElementById("adminSectionAppearanceBtn").onclick = async () => {
       setAdminSection("appearance");
       await loadAppearanceForAdmin();
@@ -3718,6 +4052,15 @@ function geoExecutivePage({ orgHint = "" } = {}) {
     document.getElementById("qSortContentQuality").onchange = (e) => {
       setQualityQuestionSort("total_content_quality", e.target.value);
     };
+    document.getElementById("evalRangeDay").onclick = async () => { setEvalRange("day"); await renderEvaluationReview(); };
+    document.getElementById("evalRangeWeek").onclick = async () => { setEvalRange("week"); await renderEvaluationReview(); };
+    document.getElementById("evalRangeMonth").onclick = async () => { setEvalRange("month"); await renderEvaluationReview(); };
+    document.getElementById("evalRangeAll").onclick = async () => { setEvalRange("all"); await renderEvaluationReview(); };
+    document.getElementById("evalRangeCustom").onclick = async () => { setEvalRange("custom"); await renderEvaluationReview(); };
+    document.getElementById("evalApplyRange").onclick = async () => { setEvalRange("custom"); await renderEvaluationReview(); };
+    document.getElementById("evalQuestionFilter").onchange = async () => { await renderEvaluationReview(); };
+    document.getElementById("evalMarketFilter").onchange = async () => { await renderEvaluationReview(); };
+    document.getElementById("evalModelFilter").onchange = async () => { await renderEvaluationReview(); };
     document.getElementById("forgotPasswordBtn").onclick = requestPasswordReset;
     document.getElementById("registerRequestBtn").onclick = requestAccessRegistration;
     document.getElementById("pwdCancelBtn").onclick = hidePasswordModal;
@@ -3845,6 +4188,14 @@ function geoExecutivePage({ orgHint = "" } = {}) {
         setRegStatus(String(err.message || err), true);
       }
     };
+    document.getElementById("adminEvalTable").onclick = (e) => {
+      const btn = e.target.closest("[data-eval-view]");
+      if (!btn) return;
+      const row = e.target.closest("tr[data-eval-id]");
+      if (!row) return;
+      evalSelectedId = String(row.getAttribute("data-eval-id") || "");
+      renderEvaluationReview();
+    };
     document.getElementById("marketBars").onclick = async (e) => {
       const card = e.target.closest("[data-drill-kind='market']");
       if (!card) return;
@@ -3885,6 +4236,7 @@ function geoExecutivePage({ orgHint = "" } = {}) {
       updateAdminVisibility();
       setRange("today");
       setRunRange("day");
+      setEvalRange("day");
       setTrendRange("month");
       const end = new Date();
       const start = addDays(end, -30);
