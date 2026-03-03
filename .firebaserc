@@ -1,15 +1,15 @@
 {
   "projects": {
-    "default": "dvan-agent-team"
+    "default": "george-58c03"
   },
   "targets": {
-    "dvan-agent-team": {
+    "george-58c03": {
       "hosting": {
         "prod": [
-          "george-geo"
+          "george-58c03"
         ],
         "dev": [
-          "george-geo-sandbox"
+          "george-58c03-dev"
         ]
       }
     }

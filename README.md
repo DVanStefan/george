@@ -50,8 +50,9 @@ npm run geo:migrate:firestore
 
 ## Environments
 
-- Dev Hosting: `https://george-geo-dev.web.app` (rewrites to Cloud Run service `dmo-geo-dev`)
-- Prod Hosting: `https://george-geo.web.app` (rewrites to Cloud Run service `dmo-geo`)
+- Dev Hosting: `https://george-58c03-dev.web.app` (rewrites to Cloud Run service `dmo-geo-dev`)
+- Prod Hosting: `https://george-58c03.web.app` (rewrites to Cloud Run service `dmo-geo`)
+- Firebase/GCP project: `george-58c03`
 
 ### Deploy Workflow
 
